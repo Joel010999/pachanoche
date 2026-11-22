@@ -1,9 +1,12 @@
-# Alcance del MVP
+# Alcance de la hackathon
 
-| Prioridad | Entrega |
-|---|---|
-| P0 | Portada, mapa de cinco candidatos, capa NASA GIBS, consulta temporal por objetivo, efemérides aproximadas, índice explicado, alternativas, tres experiencias y reserva demo. |
-| P1 | Comparación inicial incluida. Pendientes validación de campo, filtros de movilidad y presupuesto, búsqueda de hora óptima, persistencia y panel de prestadores. |
-| P2 | Cuentas, pagos, catálogo verificado, inventario real, SaaS, expansión y app móvil. |
+| Prioridad | Trabajo | Evidencia de aceptación |
+| --- | --- | --- |
+| P0 | Alta de lote, medición, GPS, evidencia y fraccionamiento | Historial y conciliación en gramos |
+| P0 | Escena histórica real de Salinas Grandes | Imagen, identificador, cobertura, fecha y atribución visibles |
+| P0 | Anclaje en Fuji y verificación del archivo | Recibo exitoso y prueba con archivo alterado |
+| P0 | QR y demo integrada | Escaneo desde otro dispositivo y recorrido del guion |
+| P1 | Multiempresa, transferencia y recepción, tablero, informe de laboratorio, comparación de escenas y PDF | Validaciones de permisos y movimientos entre organizaciones |
+| P2 | Laboratorios reales, certificaciones oficiales, pagos, marketplace, logística, auditoría externa, app y otros productos | Hitos definidos después del piloto |
 
-El mapa puede mostrar el compuesto histórico cuando hay red. El recorrido demo funciona con las coordenadas y el escenario meteorológico incluidos. Los lugares no equivalen a puntos de encuentro. El catálogo no representa oferta propia o de terceros.
+El bootstrap entrega interfaz y contratos para desarrollo paralelo. La salida del MVP requiere integrar y verificar la escena, el QR y una transacción real de prueba.

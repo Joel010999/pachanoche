@@ -1,18 +1,15 @@
 # Arquitectura
 
-```mermaid
-flowchart LR
-  UI[Navegador] --> API[Servidor HTTP Node]
-  UI --> GIBS[NASA GIBS WMS]
-  API --> CAT[Catálogo local]
-  API --> SKY[Efemérides e índice]
-  API --> MET[Adaptador meteorológico]
-  MET --> OM[Open-Meteo]
-```
+Next.js App Router aloja la interfaz y los Route Handlers bajo `/api/v1`. React consume los contratos compartidos. Las decisiones de disponibilidad, custodia y autorización residen en el servicio backend.
 
-- `public/` contiene HTML, CSS y un módulo ES para interacción. La cuadrícula georreferenciada usa el mismo cuadro EPSG:4326 para puntos y WMS.
-- `src/server.mjs` gestiona validación, rutas cerradas, errores y cabeceras. El navegador obtiene meteorología por el mismo origen y las imágenes satelitales directamente desde NASA.
-- `src/domain/` contiene catálogo, cálculos y normalización. TypeScript verifica el dominio JavaScript con JSDoc y modo estricto.
-- `scripts/build.mjs` empaqueta código y estáticos en `dist/`. En producción ejecutar `node dist/src/server.mjs` con Node 22.16+, configurar `HOST=0.0.0.0` y el puerto del proveedor. Para exposición pública usar proxy TLS, límites de solicitudes y monitoreo.
-- Cada consulta puede disparar hasta cinco peticiones meteorológicas en paralelo. Antes de tráfico público agregar caché por punto y hora, cuotas, observabilidad y contrato del proveedor.
-- PostGIS puede alojar lugares, polígonos de acceso y metadatos raster. Reservas reales requieren transacciones, control de inventario, idempotencia y auditoría.
+| Componente | Implementación objetivo | Interfaz |
+| --- | --- | --- |
+| Datos productivos | PostgreSQL con transacciones y restricciones | Servicio de lotes e inventario |
+| Documentos | Almacenamiento de objetos privado | ID opaco, SHA-256 del original y acceso temporal |
+| Territorial | Worker STAC y PostGIS para intersecciones | Observaciones por sitio de extracción |
+| Anclaje | Worker de outbox y adaptador Fuji | Solicitud idempotente y recibo verificado |
+| Consulta pública | Proyección autorizada | QR con URI estable del código opaco |
+
+Las mutaciones guardan el evento de lote, la auditoría y la outbox en la misma transacción. Los workers operan fuera de ella y actualizan sus proyecciones. El coprocesamiento territorial o blockchain puede quedar pendiente mientras la historia productiva sigue disponible. El frontend usa fixtures o la API demo hasta que exista PostgreSQL.
+
+Las fechas viajan en UTC ISO 8601. Masa canónica en gramos enteros, coordenadas WGS84, UUID para identificadores internos y códigos opacos para enlaces públicos. La v1 mantiene campos existentes al incorporar extensiones.

@@ -1,0 +1,9 @@
+# Anclaje documental en Fuji
+
+C-Chain Fuji, chain ID 43113. El worker verifica la red y la dirección de contrato antes de firmar. [Avalanche Fuji](https://build.avax.network/academy/blockchain/x402-payment-infrastructure/04-x402-on-avalanche/02-network-setup)
+
+Contrato mínimo Solidity. Interfaz `anchor(bytes32 anchorId, bytes32 lotRef, bytes32 digest, uint8 eventKind)` y evento `Anchored` con los mismos campos. Usar un escritor autorizado. Emplear UUID serializado a 16 bytes y rellenado a la izquierda para lotRef. AnchorId es un identificador aleatorio de 32 bytes estable por trabajo. Digest es el SHA-256 de bytes originales sin transformación. V1 usa eventKind 1 para evidencia y 2 para referencia de verificación documental. Rechazar valores cero y reutilización del anchorId con datos diferentes. Consultar el registro antes de reintentar.
+
+El backend coloca una solicitud en outbox y guarda chainId, contrato, nonce y txHash antes de esperar recibo. Usar una sola cola por firmante o gestionar nonce con bloqueo. Ante timeout consultar recibo y el registro del contrato antes de reenviar. Si queda pendiente, reemplazar bajo el mismo nonce con política de gas acotada. Confirmar recibo exitoso y decodificar evento, contrato y digest. Usar dos bloques de profundidad configurables para el ensayo y reconciliar cambios de recibo. Guardar gasUsed y effectiveGasPrice. Costo real en AVAX equivale a su producto dividido por 10^18. Medir durante la prueba.
+
+Guardar la llave de pruebas en provisionamiento de secretos y limitar fondos y permisos. Publicar hash, referencia opaca y tipo de evento. Los datos personales, expedientes, coordenadas y archivos privados quedan off-chain. Revisar autorización y exposición antes de anclar documentos. El contrato no emite activos ni representa derechos o certificaciones. El despliegue real requiere firmante, fondos de test y contrato desplegado.

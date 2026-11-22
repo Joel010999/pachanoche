@@ -1,9 +1,10 @@
-# Guion de demo
+# Guion de la demo
 
-1. Abrir la portada e ir al explorador. Elegir Tilcara, 22/11/2026 a las 22:00, objetivo Luna. Activar meteorología de muestra para una presentación reproducible.
-2. Evaluar. Mostrar la altura de la Luna, iluminación, horas locales y pesos. Comparar con la capital y señalar que el índice para Luna no resta por brillo lunar.
-3. Ir al mapa y elegir Luces nocturnas · VIIRS 2016. Si hay red, mostrar la capa NASA y la procedencia. Si falla, explicar el aviso y usar los marcadores sobre la cuadrícula.
-4. Abrir La Luna desde la ciudad, leer requisitos y elegir dos personas. Confirmar y mostrar referencia DEMO y total simulado.
-5. Explicar la comisión por reserva completada y el plan de calibración con observaciones y prestadores.
+1. Abrir el entorno demo y crear un lote con datos sintéticos, fecha de extracción y ubicación declarada cerca del área de estudio.
+2. Registrar 100 kg, instrumento y responsable demo. Adjuntar el documento sintético y conservar el original.
+3. Mostrar una escena real con fecha UTC, fuente, nube y resolución. Explicar que contextualiza el sitio y que la coordenada fue declarada.
+4. Solicitar anclaje en Fuji, abrir el recibo confirmado y cotejar el SHA-256 del original. Cambiar un byte y verificar que falle.
+5. Fraccionar 30 kg, abrir el sublote y revisar los 70 kg restantes en el padre junto con ambos historiales.
+6. Escanear el QR público desde otro dispositivo. Revisar la proyección y repetir la comprobación de integridad.
 
-Antes de proyectar, revisar el mapa con la red del recinto, teclado, pantalla móvil y modo de muestra.
+En el bootstrap se puede consultar el lote sintético, abrir la imagen histórica de contexto y probar alta, peso y fraccionamiento vía API. La ficha STAC, el documento, el anclaje y el QR se cierran con los issues P0. Si falla un proveedor durante el ensayo, registrar el estado real y mostrar recibos o metadatos previamente obtenidos con su fecha, cuando existan.
