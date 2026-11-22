@@ -1,13 +1,13 @@
 import { connection } from "next/server";
 import Image from "next/image";
 import Link from "next/link";
-import { demoLots } from "@/domain/demo-fixture";
+import { container } from "@/server/container";
 
 const mass = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 3 });
 
 export default async function Home() {
   await connection();
-  const lots = demoLots.list();
+  const lots = container().lots.list();
   return (
     <main className="mx-auto max-w-5xl px-5 py-8 sm:px-12 sm:py-14">
       <header className="rounded-3xl bg-[#17362b] px-7 py-12 text-white sm:px-14 sm:py-20">
