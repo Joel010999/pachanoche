@@ -8,7 +8,7 @@ import { readJsonFile, writeJsonFile } from "../integrations/local-store/json-fi
 import { MemoryEvidenceStore } from "../integrations/local-store/memory-evidence.ts";
 import type { Container } from "./ports.ts";
 
-export const defaultDataDir = () => resolve(process.env.DEMO_DATA_DIR ?? ".data");
+export const defaultDataDir = () => resolve(/* turbopackIgnore: true */ process.env.DEMO_DATA_DIR ?? ".data");
 export const dataFiles = (dataDir: string) => ({ state: join(dataDir, "demo.json"), evidence: join(dataDir, "evidence") });
 
 export function seededLots(onChange?: (snapshot: DemoSnapshot) => void) {
