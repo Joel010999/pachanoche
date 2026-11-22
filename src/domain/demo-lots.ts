@@ -1,19 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { maxGrams, type ApiErrorCode, type CreateLot, type Lot, type LotEvent, type Measurement, type SplitResult } from "../contracts/v1.ts";
+import { maxGrams, type CreateLot, type Lot, type LotEvent, type Measurement, type SplitResult } from "../contracts/v1.ts";
+import { AppError } from "./errors.ts";
 
 const organizationId = "e8f1ef36-0252-41ba-8ee1-f23c2370c92f";
 const actorId = "15ba8a42-cb18-471b-9330-ba23d4f35efc";
 
-export class LotError extends Error {
-  readonly code: ApiErrorCode;
-  readonly status: number;
-
-  constructor(code: ApiErrorCode, status: number, message: string) {
-    super(message);
-    this.code = code;
-    this.status = status;
-  }
-}
+export { AppError as LotError };
 
 export class DemoLots {
   private lots = new Map<string, Lot>();
@@ -26,7 +18,7 @@ export class DemoLots {
 
   get(id: string): Lot {
     const lot = this.lots.get(id);
-    if (!lot) throw new LotError("NOT_FOUND", 404, "Lote inexistente.");
+    if (!lot) throw new AppError("NOT_FOUND", 404, "Lote inexistente.");
     return structuredClone(lot);
   }
 
@@ -45,10 +37,10 @@ export class DemoLots {
   measure(id: string, input: Measurement): Lot {
     const lot = this.get(id);
     if (lot.parentId || this.events(id).some(event => event.type === "measurement_recorded")) {
-      throw new LotError("CONFLICT", 409, "El lote ya tiene una masa inicial.");
+      throw new AppError("CONFLICT", 409, "El lote ya tiene una masa inicial.");
     }
     if (!Number.isSafeInteger(input.grams) || input.grams < 1 || input.grams > maxGrams) {
-      throw new LotError("VALIDATION_ERROR", 400, "La masa registrada es inválida.");
+      throw new AppError("VALIDATION_ERROR", 400, "La masa registrada es inválida.");
     }
     lot.availableGrams = input.grams;
     this.lots.set(id, lot);
@@ -59,10 +51,10 @@ export class DemoLots {
   split(id: string, grams: number): SplitResult {
     const parent = this.get(id);
     if (!Number.isSafeInteger(grams) || grams < 1) {
-      throw new LotError("VALIDATION_ERROR", 400, "La masa del fraccionamiento es inválida.");
+      throw new AppError("VALIDATION_ERROR", 400, "La masa del fraccionamiento es inválida.");
     }
     if (grams > parent.availableGrams) {
-      throw new LotError("INSUFFICIENT_MASS", 409, "El saldo del lote es insuficiente.");
+      throw new AppError("INSUFFICIENT_MASS", 409, "El saldo del lote es insuficiente.");
     }
     parent.availableGrams -= grams;
     const child = { ...parent, id: randomUUID(), parentId: parent.id, availableGrams: grams };
@@ -79,7 +71,7 @@ export class DemoLots {
     const previous = this.replay.get(replayKey);
     if (previous) {
       if (previous.fingerprint !== fingerprint) {
-        throw new LotError("IDEMPOTENCY_CONFLICT", 409, "La clave ya se usó con otro cuerpo.");
+        throw new AppError("IDEMPOTENCY_CONFLICT", 409, "La clave ya se usó con otro cuerpo.");
       }
       return structuredClone(previous.data);
     }
