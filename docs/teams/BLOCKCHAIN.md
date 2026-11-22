@@ -1,6 +1,6 @@
 # Equipo blockchain
 
-Rama `feature/blockchain`. Responsable pendiente de asignación.
+Rama `feature/blockchain`. Responsable: Dani.
 
 Verificabilidad documental en Fuji con mínimos datos públicos. El registro representa información documental. Quedan fuera propiedad, derechos de extracción e instrumentos financieros.
 

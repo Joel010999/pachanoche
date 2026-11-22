@@ -1,6 +1,6 @@
 # Equipo backend
 
-Rama `feature/backend`. Responsable pendiente de asignación.
+Rama `feature/backend`. Responsable: Joel.
 
 Núcleo de inventario y roles. Mantiene la fuente de verdad para masa, auditoría y movimientos. Transferencias y recepción quedan en P1.
 

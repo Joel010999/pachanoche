@@ -1,6 +1,6 @@
 # Equipo geospatial
 
-Rama `feature/geospatial`. Responsable pendiente de asignación.
+Rama `feature/geospatial`. Responsable: Dani.
 
 Contexto territorial, escenas reales, geofencing y mapa. Las observaciones se vinculan al sitio declarado.
 

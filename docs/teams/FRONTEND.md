@@ -1,6 +1,6 @@
 # Equipo frontend
 
-Rama `feature/frontend`. Responsable pendiente de asignación.
+Rama `feature/frontend`. Responsable: Raúl.
 
 Interfaz responsive, identidad, sesión demo y flujo de trazabilidad. Consume la API v1 y proyecciones públicas. Las integraciones espaciales y blockchain viven en servicios.
 

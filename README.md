@@ -25,6 +25,6 @@ La base no requiere secretos. Copiar `.env.example` a `.env.local` al integrar p
 
 - [Especificación](docs/PRODUCT_SPEC.md), [alcance P0–P2](docs/MVP_SCOPE.md), [hoja de ruta](docs/ROADMAP.md) y [guion de demo](docs/DEMO_SCRIPT.md).
 - [Arquitectura](docs/ARCHITECTURE.md), [modelo de datos](docs/technical/DATA_MODEL.md), [API](docs/technical/API_SPEC.md), [Fuji](docs/technical/BLOCKCHAIN_SPEC.md) y [Sentinel](docs/technical/SATELLITE_SPEC.md).
-- [Equipo y ramas](docs/TEAM_COORDINATION.md) y [backlog P0](https://github.com/Joel010999/pachanoche/milestone/1). Cuatro frentes: frontend, backend, blockchain y geoespacial. Las asignaciones personales quedan abiertas.
+- [Plan de acción y trabajo en paralelo](docs/PLAN_DE_ACCION.md). [Equipo y ramas](docs/TEAM_COORDINATION.md) y [backlog P0](https://github.com/Joel010999/pachanoche/milestone/1). Cuatro frentes: frontend, backend, blockchain y geoespacial. Las asignaciones personales quedan abiertas.
 - [Modelo de negocio](docs/BUSINESS_MODEL.md). Se evaluarán suscripciones de distribuidores, licencias para cooperativas, implementación e integraciones. Precios y efectos comerciales son hipótesis.
 - [Fuentes](docs/research/DATA_SOURCES.md), [marco regulatorio](docs/research/REGULATORY_CONSIDERATIONS.md) y [seguridad](docs/technical/SECURITY.md). La demo no acredita calidad, derechos territoriales ni relaciones comerciales.
