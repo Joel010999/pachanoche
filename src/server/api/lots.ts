@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createLotSchema, measurementSchema, splitSchema } from "../../contracts/v1.ts";
 import { container } from "../container.ts";
-import { digest, handle, idempotencyKey, notFound, ok, parse, readJson } from "../http.ts";
+import { digest, handle, idempotencyKey, ok, parse, readJson } from "../http.ts";
 import type { Actor } from "../ports.ts";
 import { requireSession } from "../session.ts";
 
@@ -29,7 +29,6 @@ export const createLot = (request: Request) =>
 export const recordMeasurement = (request: Request, { id }: LotParams) =>
   handle(() => mutate(request, `lots/${id}/measurements`, (actor, input) => {
     const measurement = parse(measurementSchema, input);
-    if (measurement.evidenceId) notFound();
     return container().lots.measure(actor, id, measurement);
   }));
 

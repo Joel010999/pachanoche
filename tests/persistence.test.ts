@@ -32,7 +32,7 @@ test("los lotes sobreviven a un reinicio del contenedor", t => {
 
 test("las evidencias se guardan en disco y rechazan identificadores inseguros", async t => {
   const dataDir = temporaryDir(t);
-  const id = "0b9e7a4c-5d34-4a8e-9a1f-1f2e3d4c5b6a";
+  const id = "a".repeat(64);
   const bytes = new Uint8Array([37, 80, 68, 70]);
   await createContainer({ dataDir }).evidence.put(id, bytes);
   assert.deepEqual(await createContainer({ dataDir }).evidence.get(id), bytes);

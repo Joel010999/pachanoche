@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { EvidenceStore } from "../../server/ports.ts";
 
-const safeId = /^[0-9a-f-]{36}$/;
+const safeId = /^[0-9a-f]{64}$/;
 
 export class FileEvidenceStore implements EvidenceStore {
   private directory: string;
