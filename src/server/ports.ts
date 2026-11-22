@@ -1,11 +1,11 @@
 import type {
-  BlockchainAdapter, CreateLot, EvidenceSummary, GeofenceResult, Lot, LotEvent, Measurement, PublicField, SatelliteSource, SplitResult,
+  AnchorSummary, BlockchainAdapter, CreateLot, EvidenceSummary, GeofenceResult, Lot, LotEvent, Measurement, PublicField, SatelliteSource, SplitResult,
 } from "../contracts/v1.ts";
 
 export type { BlockchainAdapter, SatelliteSource };
 export type DeclaredLocation = CreateLot["location"];
 export type Actor = { actorId: string; organizationId: string; requestId?: string };
-export type AuditAction = "lot.create" | "lot.measure" | "lot.split" | "lot.evidence" | "lot.publish";
+export type AuditAction = "lot.create" | "lot.measure" | "lot.split" | "lot.evidence" | "lot.publish" | "lot.anchor";
 export type AuditEntry = {
   id: string;
   organizationId: string;
@@ -18,6 +18,7 @@ export type AuditEntry = {
 };
 export type EvidenceInput = Omit<EvidenceSummary, "id">;
 export type EvidenceRecord = EvidenceSummary & { lotId: string; organizationId: string; actorId: string; createdAt: string };
+export type AnchorRecord = AnchorSummary & { lotId: string; organizationId: string; actorId: string; createdAt: string };
 export type Publication = { code: string; lotId: string; fields: PublicField[]; publishedAt: string };
 
 export interface LotStore {
@@ -30,6 +31,8 @@ export interface LotStore {
   split(actor: Actor, id: string, grams: number): SplitResult;
   attachEvidence(actor: Actor, lotId: string, input: EvidenceInput): EvidenceSummary;
   evidence(lotId: string, organizationId?: string): EvidenceSummary[];
+  attachAnchor(actor: Actor, lotId: string, anchor: AnchorSummary): AnchorSummary;
+  anchors(lotId: string, organizationId?: string): AnchorSummary[];
   publish(actor: Actor, lotId: string, fields: PublicField[]): Publication;
   publication(code: string): Publication | undefined;
   idempotent(actor: Actor, scope: string, key: string, fingerprint: string, operation: () => unknown): unknown;

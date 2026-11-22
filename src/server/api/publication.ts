@@ -24,7 +24,16 @@ export async function projectPublicLot({ code, lotId, fields }: Publication): Pr
     extractedAt: lot.extractedAt,
     events: show("events") ? chain.flatMap(item => lots.events(item.id)).map(({ type, occurredAt }) => ({ type, occurredAt })) : [],
     evidence: show("evidence")
-      ? chain.flatMap(item => lots.evidence(item.id)).filter(file => file.visibility === "digest_public").map(({ id, sha256 }) => ({ id, sha256 }))
+      ? chain.flatMap(item => {
+          const lotAnchors = lots.anchors(item.id);
+          return lots
+            .evidence(item.id)
+            .filter(file => file.visibility === "digest_public")
+            .map(({ id, sha256 }) => {
+              const anchor = lotAnchors.find(a => a.evidenceId === id);
+              return { id, sha256, ...(anchor ? { anchor } : {}) };
+            });
+        })
       : [],
     observations: show("observations") && site ? await satellite.observations(site.id).catch(() => []) : [],
     ...(show("geofence") ? { geofence: geofence.classify(location) } : {}),

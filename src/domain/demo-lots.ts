@@ -1,8 +1,8 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import {
-  maxGrams, type CreateLot, type EvidenceSummary, type Lot, type LotEvent, type Measurement, type PublicField, type SplitResult,
+  maxGrams, type AnchorSummary, type CreateLot, type EvidenceSummary, type Lot, type LotEvent, type Measurement, type PublicField, type SplitResult,
 } from "../contracts/v1.ts";
-import type { Actor, AuditAction, AuditEntry, EvidenceInput, EvidenceRecord, Publication } from "../server/ports.ts";
+import type { Actor, AnchorRecord, AuditAction, AuditEntry, EvidenceInput, EvidenceRecord, Publication } from "../server/ports.ts";
 import { AppError } from "./errors.ts";
 import { findSite } from "./personas.ts";
 
@@ -15,6 +15,7 @@ export type DemoSnapshot = {
   audit?: AuditEntry[];
   evidence?: Array<[string, EvidenceRecord]>;
   publications?: Array<[string, Publication]>;
+  anchors?: Array<[string, AnchorRecord]>;
 };
 type Options = { snapshot?: DemoSnapshot; onChange?: (snapshot: DemoSnapshot) => void };
 
@@ -31,6 +32,7 @@ export class DemoLots {
   private auditLog: AuditEntry[];
   private files: Map<string, EvidenceRecord>;
   private publications: Map<string, Publication>;
+  private anchorRecords: Map<string, AnchorRecord>;
   private onChange?: (snapshot: DemoSnapshot) => void;
 
   constructor({ snapshot, onChange }: Options = {}) {
@@ -41,6 +43,7 @@ export class DemoLots {
     this.auditLog = structuredClone(snapshot?.audit ?? []);
     this.files = new Map(structuredClone(snapshot?.evidence ?? []));
     this.publications = new Map(structuredClone(snapshot?.publications ?? []));
+    this.anchorRecords = new Map(structuredClone(snapshot?.anchors ?? []));
     this.onChange = onChange;
   }
 
@@ -48,6 +51,7 @@ export class DemoLots {
     return structuredClone({
       version: 1, lots: [...this.lots], history: [...this.history], replay: [...this.replay],
       audit: this.auditLog, evidence: [...this.files], publications: [...this.publications],
+      anchors: [...this.anchorRecords],
     });
   }
 
@@ -147,6 +151,39 @@ export class DemoLots {
     return [...this.files.values()].filter(file => file.lotId === lotId).map(summary);
   }
 
+  attachAnchor(actor: Actor, lotId: string, anchor: AnchorSummary): AnchorSummary {
+    this.get(lotId, actor.organizationId);
+    const now = new Date().toISOString();
+    const record: AnchorRecord = {
+      ...structuredClone(anchor),
+      lotId,
+      organizationId: actor.organizationId,
+      actorId: actor.actorId,
+      createdAt: now,
+    };
+    this.anchorRecords.set(anchor.id, record);
+    this.record(actor, lotId, now, { type: "anchor_confirmed", payload: { anchorId: anchor.id } });
+    this.audited(actor, "lot.anchor", lotId);
+    this.changed();
+    return structuredClone(anchor);
+  }
+
+  anchors(lotId: string, organizationId?: string): AnchorSummary[] {
+    if (organizationId) {
+      this.get(lotId, organizationId);
+    }
+    return [...this.anchorRecords.values()]
+      .filter(item => item.lotId === lotId)
+      .map(({ id, evidenceId, status, chainId, contractAddress, txHash }) => ({
+        id,
+        evidenceId,
+        status,
+        chainId,
+        contractAddress,
+        txHash,
+      }));
+  }
+
   publish(actor: Actor, lotId: string, fields: PublicField[]): Publication {
     this.get(lotId, actor.organizationId);
     const previous = [...this.publications.values()].find(item => item.lotId === lotId);
@@ -174,10 +211,17 @@ export class DemoLots {
       }
       return structuredClone(previous.data);
     }
-    const data = operation();
-    this.replay.set(replayKey, { fingerprint, data: structuredClone(data) });
+    const result = operation();
+    if (result instanceof Promise) {
+      return result.then(data => {
+        this.replay.set(replayKey, { fingerprint, data: structuredClone(data) });
+        this.changed();
+        return data;
+      });
+    }
+    this.replay.set(replayKey, { fingerprint, data: structuredClone(result) });
     this.changed();
-    return data;
+    return result;
   }
 
   audit(organizationId: string): AuditEntry[] {

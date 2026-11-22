@@ -127,9 +127,24 @@ export type PublicLot = {
   observations: SatelliteObservation[];
   geofence?: GeofenceResult;
 };
+export type DigestVerificationResult =
+  | {
+      exists: true;
+      anchorId: string;
+      lotId: string;
+      evidenceId: string;
+      sha256: string;
+      eventKind: 1 | 2;
+      txHash: string;
+      contractAddress: string;
+      timestamp: string;
+    }
+  | { exists: false };
+
 export interface BlockchainAdapter {
   submit(input: { anchorId: string; lotId: string; evidenceId: string; sha256: string; eventKind: 1 | 2 }): Promise<AnchorSummary>;
   reconcile(anchor: AnchorSummary): Promise<AnchorSummary>;
+  verifyDigest(sha256: string): DigestVerificationResult | Promise<DigestVerificationResult>;
 }
 export interface SatelliteSource {
   observations(siteId: string): Promise<SatelliteObservation[]>;
