@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test tests/*.test.ts",
-    "build": "next build"
+    "build": "next build",
+    "demo:reset": "node --disable-warning=ExperimentalWarning --experimental-strip-types scripts/demo-data.ts reset",
+    "demo:seed": "node --disable-warning=ExperimentalWarning --experimental-strip-types scripts/demo-data.ts seed"
   },
   "dependencies": {
     "next": "^16.2.0",

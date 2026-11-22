@@ -7,10 +7,36 @@ const actorId = "15ba8a42-cb18-471b-9330-ba23d4f35efc";
 
 export { AppError as LotError };
 
+type Replay = { fingerprint: string; data: unknown };
+export type DemoSnapshot = {
+  version: 1;
+  lots: Array<[string, Lot]>;
+  history: Array<[string, LotEvent[]]>;
+  replay: Array<[string, Replay]>;
+};
+type Options = { snapshot?: DemoSnapshot; onChange?: (snapshot: DemoSnapshot) => void };
+
 export class DemoLots {
-  private lots = new Map<string, Lot>();
-  private history = new Map<string, LotEvent[]>();
-  private replay = new Map<string, { fingerprint: string; data: unknown }>();
+  private lots: Map<string, Lot>;
+  private history: Map<string, LotEvent[]>;
+  private replay: Map<string, Replay>;
+  private onChange?: (snapshot: DemoSnapshot) => void;
+
+  constructor({ snapshot, onChange }: Options = {}) {
+    if (snapshot && snapshot.version !== 1) throw new Error("Versión de datos demo desconocida.");
+    this.lots = new Map(structuredClone(snapshot?.lots ?? []));
+    this.history = new Map(structuredClone(snapshot?.history ?? []));
+    this.replay = new Map(structuredClone(snapshot?.replay ?? []));
+    this.onChange = onChange;
+  }
+
+  snapshot(): DemoSnapshot {
+    return structuredClone({ version: 1, lots: [...this.lots], history: [...this.history], replay: [...this.replay] });
+  }
+
+  private changed() {
+    this.onChange?.(this.snapshot());
+  }
 
   list(): Lot[] {
     return structuredClone([...this.lots.values()]);
@@ -31,6 +57,7 @@ export class DemoLots {
     const lot = { ...structuredClone(input), id: randomUUID(), organizationId, parentId: null, availableGrams: 0 };
     this.lots.set(lot.id, lot);
     this.record(lot.id, input.extractedAt, { type: "extraction_declared", payload: input });
+    this.changed();
     return structuredClone(lot);
   }
 
@@ -45,6 +72,7 @@ export class DemoLots {
     lot.availableGrams = input.grams;
     this.lots.set(id, lot);
     this.record(id, input.measuredAt, { type: "measurement_recorded", payload: input });
+    this.changed();
     return structuredClone(lot);
   }
 
@@ -63,6 +91,7 @@ export class DemoLots {
     this.lots.set(child.id, child);
     this.record(parent.id, now, { type: "lot_split", payload: { childId: child.id, grams } });
     this.record(child.id, now, { type: "sublot_created", payload: { parentId: id, grams } });
+    this.changed();
     return structuredClone({ parent, child });
   }
 
@@ -77,6 +106,7 @@ export class DemoLots {
     }
     const data = operation();
     this.replay.set(replayKey, { fingerprint, data: structuredClone(data) });
+    this.changed();
     return data;
   }
 

@@ -2,7 +2,7 @@ import type { LotStore } from "../server/ports.ts";
 
 const date = "2026-10-15T15:00:00.000Z";
 
-export function seed(store: LotStore) {
+export function seed<T extends LotStore>(store: T): T {
   const lot = store.create({
     productCode: "sal-artesanal",
     extractedAt: date,

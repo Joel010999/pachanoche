@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createLot, getLot, listLots, lotEvents, recordMeasurement, splitLot } from "../src/server/api/lots.ts";
+import { createContainer, setContainer } from "../src/server/container.ts";
+
+setContainer(createContainer());
 
 const at = "2026-10-15T15:00:00.000Z";
 const lotBody = { productCode: "sal-artesanal", extractedAt: at, location: { latitude: -23.64, longitude: -66.01, recordedAt: at } };
