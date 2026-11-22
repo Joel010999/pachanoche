@@ -2,7 +2,8 @@ import { join, resolve } from "node:path";
 import { DemoLots, type DemoSnapshot } from "../domain/demo-lots.ts";
 import { seed } from "../domain/seed.ts";
 import { FujiBlockchainAdapter } from "../integrations/blockchain/adapter.ts";
-import { demoGeofence, demoSatellite } from "../integrations/geospatial/demo.ts";
+import { demoGeofence } from "../integrations/geospatial/demo.ts";
+import { copernicusSatellite } from "../integrations/geospatial/satellite.ts";
 import { FileEvidenceStore } from "../integrations/local-store/file-evidence.ts";
 import { readJsonFile, writeJsonFile } from "../integrations/local-store/json-file.ts";
 import { MemoryEvidenceStore } from "../integrations/local-store/memory-evidence.ts";
@@ -32,7 +33,7 @@ export function createContainer(overrides: Partial<Container> & { dataDir?: stri
     evidence: overrides.evidence ?? (files ? new FileEvidenceStore(files.evidence) : new MemoryEvidenceStore()),
     geofence: overrides.geofence ?? demoGeofence,
     blockchain: overrides.blockchain ?? new FujiBlockchainAdapter(),
-    satellite: overrides.satellite ?? demoSatellite,
+    satellite: overrides.satellite ?? copernicusSatellite,
   };
 }
 
