@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.16" },
+  "engines": {
+    "node": ">=22.16"
+  },
   "scripts": {
     "dev": "next dev",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
+    "compile:contracts": "node scripts/compile-contracts.mjs",
     "test": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test tests/*.test.ts",
     "build": "next build",
     "demo:reset": "node --disable-warning=ExperimentalWarning --experimental-strip-types scripts/demo-data.ts reset",
@@ -18,6 +21,8 @@
     "next": "^16.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "solc": "^0.8.39",
+    "viem": "^2.58.4",
     "zod": "^4.1.0"
   },
   "devDependencies": {

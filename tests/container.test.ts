@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { anchorStates } from "../src/contracts/v1.ts";
 import { createContainer } from "../src/server/container.ts";
 
 const at = "2026-10-15T15:00:00.000Z";
@@ -14,9 +15,11 @@ test("el contenedor arma todo con fixtures y sin configuración", async () => {
   const [observation] = await app.satellite.observations("sitio");
   assert.equal(observation.collection, "sentinel-2-l2a");
   assert.equal(observation.siteId, "sitio");
-  const anchor = await app.blockchain.submit({ anchorId: "a1", lotId: lot.id, evidenceId: "e1", sha256: "00", eventKind: 1 });
-  assert.equal(anchor.status, "queued");
+  const anchorId = "3f2a1b4c-5d6e-4f70-8a91-b2c3d4e5f607";
+  const anchor = await app.blockchain.submit({ anchorId, lotId: lot.id, evidenceId: "0b9e7a4c-5d34-4a8e-9a1f-1f2e3d4c5b6a", sha256: "a".repeat(64), eventKind: 1 });
+  assert.ok(anchorStates.includes(anchor.status));
   assert.equal(anchor.chainId, 43113);
+  assert.equal(anchor.id, anchorId);
 });
 
 test("el geofence demo clasifica dentro, fuera e incierto con versión", () => {

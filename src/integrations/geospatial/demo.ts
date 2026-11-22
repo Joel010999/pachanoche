@@ -1,5 +1,6 @@
 import type { SatelliteObservation } from "../../contracts/v1.ts";
 import type { GeofenceService, SatelliteSource } from "../../server/ports.ts";
+import scene from "../../../data/geo/sentinel-scene.json" with { type: "json" };
 
 // Recorte exploratorio de docs/technical/SATELLITE_SPEC.md: oeste, sur, este, norte.
 export const studyArea = { version: "demo-bbox-2026-11", bbox: [-66.10, -23.76, -65.88, -23.54] } as const;
@@ -15,12 +16,13 @@ export const demoGeofence: GeofenceService = {
 
 const salinasGrandes: Omit<SatelliteObservation, "siteId"> = {
   id: "8f0b6c52-6f43-4d3c-9a57-3c1b1f7f2a10",
-  collection: "sentinel-2-l2a",
-  itemId: "copernicuslac-salinas-grandes-2025-02-23",
-  acquiredAt: "2025-02-23T00:00:00.000Z",
-  previewUrl: "https://copernicuslac-chile.eu/wp-content/uploads/2026/04/Salinas-Grandes.jpg",
-  attribution: "Contiene datos modificados de Copernicus Sentinel (2025), vía CopernicusLAC Chile.",
-  resolutionM: 10,
+  collection: scene.collection as SatelliteObservation["collection"],
+  itemId: scene.id,
+  acquiredAt: new Date(scene.properties.datetime).toISOString(),
+  previewUrl: scene.assets.visual.href,
+  attribution: scene.properties.attribution,
+  resolutionM: scene.properties.gsd,
+  cloudCoverPercent: scene.properties["eo:cloud_cover"],
 };
 
 export const demoSatellite: SatelliteSource = {

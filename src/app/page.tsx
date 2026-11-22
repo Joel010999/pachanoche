@@ -35,11 +35,10 @@ export default async function Home() {
         <h2 id="territory-title" className="text-2xl font-semibold">Contexto territorial</h2>
         <figure className="mt-4 overflow-hidden rounded-2xl border border-[#d6ded1] bg-white">
           <Image
-            src="https://copernicuslac-chile.eu/wp-content/uploads/2026/04/Salinas-Grandes.jpg"
+            src="/geo/salinas-grandes.jpg"
             alt="Vista satelital de las Salinas Grandes y el paisaje circundante"
             width={1020}
             height={747}
-            unoptimized
             className="h-auto w-full"
           />
           <figcaption className="p-5 text-[#425c50]">
