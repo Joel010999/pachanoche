@@ -1,0 +1,17 @@
+{
+  "version": "2026-11-salinas-grandes",
+  "name": "Cuenca de Salinas Grandes - Recorte de Estudio Oficial",
+  "crs": "EPSG:4326",
+  "bbox": [-66.10, -23.76, -65.88, -23.54],
+  "coordinates": [
+    [-66.10, -23.76],
+    [-65.88, -23.76],
+    [-65.88, -23.54],
+    [-66.10, -23.54],
+    [-66.10, -23.76]
+  ],
+  "thresholds": {
+    "maxAcceptableAccuracyMeters": 500,
+    "defaultAccuracyMeters": 20
+  }
+}
