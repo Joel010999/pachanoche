@@ -1,53 +1,30 @@
-# PachaNoche
+# Sal de Origen
 
-**Convertimos datos del espacio en experiencias turísticas en la Tierra.**
+**Del territorio al mercado. Origen verificable, valor compartido.**
 
-Prototipo para la hackathon del 22 de noviembre de 2026 en Jujuy, Argentina. Reúne en una consulta señales que hoy se buscan por separado: pronóstico, geometría del cielo y contexto de iluminación satelital.
+Plataforma B2B de trazabilidad productiva para documentar la extracción y el recorrido comercial de la sal de Jujuy. Nace en una hackathon y comienza con Salinas Grandes. El modelo admite otros productos regionales.
 
-## Ejecutar
+La necesidad de organizar lotes, acreditar procedencia y entregar documentación a compradores se validará con cooperativas y distribuidores. Productores registran extracción, pesaje, ubicación y documentos. Verificadores revisan evidencias y compradores consultan la ficha pública por QR o el historial autorizado.
 
-Requiere Node.js 22.16+ y un navegador actual. No hay dependencias de ejecución.
+El pesaje documenta cantidad. El GPS respalda una ubicación declarada. El laboratorio informa resultados sobre una muestra identificada. Sentinel-1 y Sentinel-2 aportan contexto territorial. El anclaje previsto en Fuji permite comprobar integridad y orden de registros. La acreditación física y las certificaciones oficiales requieren evidencias y procesos independientes.
+
+## Desarrollo local
+
+Stack base: Next.js, React, TypeScript, Tailwind CSS y Node.js. La arquitectura objetivo incorpora PostgreSQL/PostGIS, almacenamiento privado, Copernicus y Avalanche Fuji.
 
 ```sh
+npm ci
 npm run dev
 ```
 
-Abrí http://127.0.0.1:3000. Probá **Tilcara**, **22/11/2026**, **22:00**, **Luna**, con **meteorología de muestra**. El modo de muestra funciona sin red (la imagen del mapa requiere conexión).
+Usar Node.js 22.16 o superior y abrir http://localhost:3000. La demo funciona con datos sintéticos en memoria y se reinicia al reiniciar el servidor. Ejecutar `npm run lint`, `npm run typecheck`, `npm test` y `npm run build`. Para producción local ejecutar `npm start` después del build.
 
-Copiá `.env.example` a `.env` para cambiar host o puerto. `OPEN_METEO_KEY` es opcional y habilita el endpoint comercial si contás con un plan. Las claves quedan en el servidor.
+La base no requiere secretos. Copiar `.env.example` a `.env.local` al integrar proveedores. `DATABASE_URL` identifica PostgreSQL, `FUJI_RPC_URL` y `FUJI_CONTRACT_ADDRESS` configuran la red de pruebas, y `PUBLIC_BASE_URL` define el origen canónico para el QR. Las credenciales de firma se provisionarán en el entorno del worker.
 
-```sh
-npm install
-npm run lint
-npm run typecheck
-npm test
-npm run build
-npm start
-```
+## Producto y equipo
 
-`npm install` sólo se necesita para el verificador TypeScript. `npm start` sirve el resultado de `npm run build`.
-
-## Validación local
-
-Con Node 22.16 y TypeScript 5.9.3 pasaron el lint básico, el chequeo estricto del dominio, 5 pruebas automatizadas, el build y una prueba HTTP del artefacto de producción. Se ejecutaron los scripts por Node porque la instalación local de npm estaba incompleta. La prueba de flujo cubre la API y la entrega de archivos. Queda pendiente comprobar las interacciones visualmente en navegador y consultar NASA GIBS y Open-Meteo desde una red habilitada.
-
-## Qué incluye
-
-- Portada y planificador por lugar, fecha, hora local y objetivo.
-- Cinco localidades o zonas candidatas y mapa WMS NASA EOSDIS GIBS. La capa Black Marble usa un compuesto Suomi NPP/VIIRS de 2016.
-- Pronóstico Open-Meteo cuando hay cobertura, modo explícito de muestra y evaluación parcial ante ausencia.
-- Sol, Luna, cuatro planetas y centro galáctico mediante cálculos aproximados. El índice detalla factores, pesos y alternativas.
-- Tres experiencias ficticias en ARS de ejemplo y reserva simulada sin cobro ni datos personales.
-
-La estimación de oscuridad usa supuestos demo. VIIRS aporta contexto visual y no entra al cálculo actual. Los lugares requieren validar permisos y acceso, y la recomendación se refiere a la geometría del cielo.
-
-## Tecnología y documentación
-
-JavaScript modular, Node HTTP, HTML/CSS, WMS EPSG:4326, Open-Meteo y TypeScript estricto para el dominio. Pruebas de dominio y flujo HTTP con Node Test Runner.
-
-- [Producto](docs/PRODUCT_SPEC.md), [alcance](docs/MVP_SCOPE.md) y [hoja de ruta](docs/ROADMAP.md)
-- [Fuentes espaciales y terrestres](docs/research/DATA_SOURCES.md), [arquitectura](docs/ARCHITECTURE.md), [índice](docs/technical/PACHANOCHE_INDEX.md), [API](docs/technical/API_DESIGN.md) y [decisiones](docs/technical/DECISIONS.md)
-- [Modelo de negocio](docs/business/BUSINESS_MODEL.md), [canvas](docs/business/BUSINESS_MODEL_CANVAS.md) y [go-to-market](docs/business/GO_TO_MARKET.md)
-- [Guion de demo](docs/DEMO_SCRIPT.md) y [pitch de 60 segundos](docs/HACKATHON_PITCH.md)
-
-El modelo comercial propone comisión por reserva completada, con SaaS para prestadores y API B2B como hipótesis. La siguiente etapa requiere validar datos, sitios, demanda e inventario antes de operar ventas.
+- [Especificación](docs/PRODUCT_SPEC.md), [alcance P0–P2](docs/MVP_SCOPE.md), [hoja de ruta](docs/ROADMAP.md) y [guion de demo](docs/DEMO_SCRIPT.md).
+- [Arquitectura](docs/ARCHITECTURE.md), [modelo de datos](docs/technical/DATA_MODEL.md), [API](docs/technical/API_SPEC.md), [Fuji](docs/technical/BLOCKCHAIN_SPEC.md) y [Sentinel](docs/technical/SATELLITE_SPEC.md).
+- [Equipo y ramas](docs/TEAM_COORDINATION.md) y [backlog P0](https://github.com/Joel010999/pachanoche/milestone/1). Cuatro frentes: frontend, backend, blockchain y geoespacial. Las asignaciones personales quedan abiertas.
+- [Modelo de negocio](docs/BUSINESS_MODEL.md). Se evaluarán suscripciones de distribuidores, licencias para cooperativas, implementación e integraciones. Precios y efectos comerciales son hipótesis.
+- [Fuentes](docs/research/DATA_SOURCES.md), [marco regulatorio](docs/research/REGULATORY_CONSIDERATIONS.md) y [seguridad](docs/technical/SECURITY.md). La demo no acredita calidad, derechos territoriales ni relaciones comerciales.
