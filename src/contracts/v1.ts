@@ -66,6 +66,10 @@ export const sessionSchema = z.strictObject({
   role: z.enum(roles),
 });
 export type Session = z.infer<typeof sessionSchema>;
+export const sessionSelectSchema = z.strictObject({ personaId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,39}$/) });
+export type SessionSelect = z.infer<typeof sessionSelectSchema>;
+export type Organization = { id: string; name: string };
+export type DemoPersona = { id: string; label: string; actorId: string; role: Role; organization: Organization };
 
 export const evidenceVisibilities = ["private", "digest_public"] as const;
 export const evidenceMediaTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"] as const;
@@ -80,11 +84,11 @@ export const evidenceMetadataSchema = z.strictObject({
 });
 export type EvidenceMetadata = z.infer<typeof evidenceMetadataSchema>;
 
-export const publicFields = ["productCode", "declaredArea", "extractedAt", "events", "evidence", "observations"] as const;
+export const publicFields = ["events", "evidence", "observations", "geofence"] as const;
 export type PublicField = typeof publicFields[number];
 export const publishSchema = z.strictObject({
   consent: z.literal(true),
-  fields: z.array(z.enum(publicFields)).min(1),
+  fields: z.array(z.enum(publicFields)).max(publicFields.length),
 });
 export type PublishRequest = z.infer<typeof publishSchema>;
 

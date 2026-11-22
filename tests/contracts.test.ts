@@ -8,6 +8,7 @@ import {
   maxEvidenceBytes,
   publishSchema,
   sessionSchema,
+  sessionSelectSchema,
 } from "../src/contracts/v1.ts";
 
 const uuid = "e8f1ef36-0252-41ba-8ee1-f23c2370c92f";
@@ -19,6 +20,8 @@ test("sesión exige actor, organización y rol válidos", () => {
   assert.equal(sessionSchema.safeParse({ ...valid, actorId: "joel" }).success, false);
   assert.equal(sessionSchema.safeParse({ actorId: uuid, role: "producer" }).success, false);
   assert.equal(sessionSchema.safeParse({ ...valid, extra: 1 }).success, false);
+  assert.equal(sessionSelectSchema.safeParse({ personaId: "productor-salinas" }).success, true);
+  assert.equal(sessionSelectSchema.safeParse({ personaId: "../admin" }).success, false);
 });
 
 test("evidencia limita visibilidad, MIME permitido y tamaño", () => {
@@ -33,11 +36,11 @@ test("evidencia limita visibilidad, MIME permitido y tamaño", () => {
   assert.equal(evidenceRequestSchema.safeParse({}).success, false);
 });
 
-test("publicar exige consentimiento explícito y campos conocidos", () => {
-  assert.equal(publishSchema.safeParse({ consent: true, fields: ["productCode", "events"] }).success, true);
-  assert.equal(publishSchema.safeParse({ consent: false, fields: ["productCode"] }).success, false);
-  assert.equal(publishSchema.safeParse({ fields: ["productCode"] }).success, false);
-  assert.equal(publishSchema.safeParse({ consent: true, fields: [] }).success, false);
+test("publicar exige consentimiento explícito y secciones conocidas", () => {
+  assert.equal(publishSchema.safeParse({ consent: true, fields: ["events", "evidence"] }).success, true);
+  assert.equal(publishSchema.safeParse({ consent: true, fields: [] }).success, true);
+  assert.equal(publishSchema.safeParse({ consent: false, fields: ["events"] }).success, false);
+  assert.equal(publishSchema.safeParse({ fields: ["events"] }).success, false);
   assert.equal(publishSchema.safeParse({ consent: true, fields: ["passwordHash"] }).success, false);
 });
 
