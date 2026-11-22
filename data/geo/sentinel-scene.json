@@ -1,0 +1,54 @@
+{
+  "stac_version": "1.0.0",
+  "id": "S2A_MSIL2A_20250223T143000_N0511_R096_T19KFA_20250223T180000",
+  "collection": "sentinel-2-l2a",
+  "type": "Feature",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [-66.10, -23.76],
+        [-65.88, -23.76],
+        [-65.88, -23.54],
+        [-66.10, -23.54],
+        [-66.10, -23.76]
+      ]
+    ]
+  },
+  "bbox": [-66.10, -23.76, -65.88, -23.54],
+  "properties": {
+    "datetime": "2025-02-23T14:30:00Z",
+    "platform": "sentinel-2a",
+    "constellation": "sentinel-2",
+    "instruments": ["msi"],
+    "processing:level": "Level-2A",
+    "gsd": 10.0,
+    "eo:cloud_cover": 0.0,
+    "proj:epsg": 4326,
+    "title": "Salinas Grandes - Jujuy, Argentina",
+    "description": "Recorte óptico RGB de alta resolución capturado por Sentinel-2A sobre la cuenca de Salinas Grandes en Jujuy, utilizado para contexto territorial y trazabilidad de origen.",
+    "attribution": "Copernicus Sentinel data [2025] procesado por CopernicusLAC Chile y Sal de Origen",
+    "license": "CC-BY-4.0"
+  },
+  "assets": {
+    "visual": {
+      "href": "/geo/salinas-grandes.jpg",
+      "type": "image/jpeg",
+      "title": "Composición RGB True Color (B04, B03, B02)",
+      "roles": ["visual", "overview"],
+      "width": 1020,
+      "height": 747
+    }
+  },
+  "complementary_radar_scene": {
+    "id": "S1A_IW_GRDH_1SDV_20250220T224500_058000_06E400_7F20",
+    "collection": "sentinel-1-grd",
+    "datetime": "2025-02-20T22:45:00Z",
+    "platform": "sentinel-1a",
+    "instruments": ["c-sar"],
+    "sensor_mode": "IW",
+    "polarizations": ["VV", "VH"],
+    "resolution_meters": 10.0,
+    "purpose": "Auditoría de rugosidad superficial y presencia de salmuera/humedad"
+  }
+}
