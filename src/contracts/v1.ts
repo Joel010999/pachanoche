@@ -60,6 +60,46 @@ export type LotEvent = {
 }[keyof EventPayloads];
 export type SplitResult = { parent: Lot; child: Lot };
 
+export const sessionSchema = z.strictObject({
+  actorId: z.uuid(),
+  organizationId: z.uuid(),
+  role: z.enum(roles),
+});
+export type Session = z.infer<typeof sessionSchema>;
+
+export const evidenceVisibilities = ["private", "digest_public"] as const;
+export const evidenceMediaTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"] as const;
+export const maxEvidenceBytes = 10 * 1024 * 1024;
+export const evidenceRequestSchema = z.strictObject({
+  visibility: z.enum(evidenceVisibilities),
+});
+export const evidenceMetadataSchema = z.strictObject({
+  mediaType: z.enum(evidenceMediaTypes),
+  sizeBytes: z.number().int().positive().max(maxEvidenceBytes),
+  visibility: z.enum(evidenceVisibilities),
+});
+export type EvidenceMetadata = z.infer<typeof evidenceMetadataSchema>;
+
+export const publicFields = ["productCode", "declaredArea", "extractedAt", "events", "evidence", "observations"] as const;
+export type PublicField = typeof publicFields[number];
+export const publishSchema = z.strictObject({
+  consent: z.literal(true),
+  fields: z.array(z.enum(publicFields)).min(1),
+});
+export type PublishRequest = z.infer<typeof publishSchema>;
+
+export const anchorRequestSchema = z.strictObject({ evidenceId: z.uuid() });
+export type AnchorRequest = z.infer<typeof anchorRequestSchema>;
+
+export const geofenceStates = ["inside", "outside", "uncertain"] as const;
+export type GeofenceStatus = typeof geofenceStates[number];
+export const geofenceResultSchema = z.strictObject({
+  status: z.enum(geofenceStates),
+  polygonVersion: z.string().min(1),
+  reason: z.string().optional(),
+});
+export type GeofenceResult = z.infer<typeof geofenceResultSchema>;
+
 export type EvidenceSummary = { id: string; sha256: string; mediaType: string; sizeBytes: number; visibility: "private" | "digest_public" };
 export type AnchorSummary = { id: string; evidenceId: string; status: AnchorStatus; chainId: 43113; contractAddress?: string; txHash?: string };
 export type SatelliteObservation = {
@@ -81,6 +121,7 @@ export type PublicLot = {
   events: Array<{ type: LotEvent["type"]; occurredAt: string }>;
   evidence: Array<{ id: string; sha256: string; anchor?: AnchorSummary }>;
   observations: SatelliteObservation[];
+  geofence?: GeofenceResult;
 };
 export interface BlockchainAdapter {
   submit(input: { anchorId: string; lotId: string; evidenceId: string; sha256: string; eventKind: 1 | 2 }): Promise<AnchorSummary>;
