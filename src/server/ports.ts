@@ -2,7 +2,18 @@ import type { BlockchainAdapter, CreateLot, GeofenceResult, Lot, LotEvent, Measu
 
 export type { BlockchainAdapter, SatelliteSource };
 export type DeclaredLocation = CreateLot["location"];
-export type Actor = { actorId: string; organizationId: string };
+export type Actor = { actorId: string; organizationId: string; requestId?: string };
+export type AuditAction = "lot.create" | "lot.measure" | "lot.split";
+export type AuditEntry = {
+  id: string;
+  organizationId: string;
+  actorId: string;
+  action: AuditAction;
+  entityId: string;
+  requestId: string | null;
+  occurredAt: string;
+  outcome: "success";
+};
 
 export interface LotStore {
   list(organizationId?: string): Lot[];
@@ -12,6 +23,7 @@ export interface LotStore {
   measure(actor: Actor, id: string, input: Measurement): Lot;
   split(actor: Actor, id: string, grams: number): SplitResult;
   idempotent(actor: Actor, scope: string, key: string, fingerprint: string, operation: () => unknown): unknown;
+  audit(organizationId: string): AuditEntry[];
 }
 
 export interface EvidenceStore {

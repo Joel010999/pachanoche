@@ -19,3 +19,12 @@ export const findPersona = (id: string) => personas.find(persona => persona.id =
 
 export const sessionOf = (persona: DemoPersona): Session =>
   ({ actorId: persona.actorId, organizationId: persona.organization.id, role: persona.role });
+
+export type ExtractionSite = { id: string; organizationId: string; label: string };
+
+export const extractionSites: ExtractionSite[] = [
+  { id: "c4d2a8e6-1b3f-4a59-8e7c-0d2f4b6a8c13", organizationId: organizations.salinas.id, label: "Salinas Grandes · área de estudio (demo)" },
+  { id: "a7e9c1b3-5d2f-4e84-9a6b-3c5e7a9d1f24", organizationId: organizations.puna.id, label: "Puna jujeña · área de estudio (demo)" },
+];
+
+export const findSite = (id: string) => extractionSites.find(site => site.id === id);

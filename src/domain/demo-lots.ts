@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { maxGrams, type CreateLot, type Lot, type LotEvent, type Measurement, type SplitResult } from "../contracts/v1.ts";
-import type { Actor } from "../server/ports.ts";
+import type { Actor, AuditAction, AuditEntry } from "../server/ports.ts";
 import { AppError } from "./errors.ts";
+import { findSite } from "./personas.ts";
 
 type Replay = { fingerprint: string; data: unknown };
 export type DemoSnapshot = {
@@ -9,6 +10,7 @@ export type DemoSnapshot = {
   lots: Array<[string, Lot]>;
   history: Array<[string, LotEvent[]]>;
   replay: Array<[string, Replay]>;
+  audit?: AuditEntry[];
 };
 type Options = { snapshot?: DemoSnapshot; onChange?: (snapshot: DemoSnapshot) => void };
 
@@ -16,6 +18,7 @@ export class DemoLots {
   private lots: Map<string, Lot>;
   private history: Map<string, LotEvent[]>;
   private replay: Map<string, Replay>;
+  private auditLog: AuditEntry[];
   private onChange?: (snapshot: DemoSnapshot) => void;
 
   constructor({ snapshot, onChange }: Options = {}) {
@@ -23,11 +26,12 @@ export class DemoLots {
     this.lots = new Map(structuredClone(snapshot?.lots ?? []));
     this.history = new Map(structuredClone(snapshot?.history ?? []));
     this.replay = new Map(structuredClone(snapshot?.replay ?? []));
+    this.auditLog = structuredClone(snapshot?.audit ?? []);
     this.onChange = onChange;
   }
 
   snapshot(): DemoSnapshot {
-    return structuredClone({ version: 1, lots: [...this.lots], history: [...this.history], replay: [...this.replay] });
+    return structuredClone({ version: 1, lots: [...this.lots], history: [...this.history], replay: [...this.replay], audit: this.auditLog });
   }
 
   private changed() {
@@ -51,9 +55,14 @@ export class DemoLots {
   }
 
   create(actor: Actor, input: CreateLot): Lot {
+    const site = input.location.siteId ? findSite(input.location.siteId) : undefined;
+    if (input.location.siteId && site?.organizationId !== actor.organizationId) {
+      throw new AppError("VALIDATION_ERROR", 400, "El sitio de extracción no pertenece a tu organización.");
+    }
     const lot = { ...structuredClone(input), id: randomUUID(), organizationId: actor.organizationId, parentId: null, availableGrams: 0 };
     this.lots.set(lot.id, lot);
     this.record(actor, lot.id, input.extractedAt, { type: "extraction_declared", payload: input });
+    this.audited(actor, "lot.create", lot.id);
     this.changed();
     return structuredClone(lot);
   }
@@ -69,6 +78,7 @@ export class DemoLots {
     lot.availableGrams = input.grams;
     this.lots.set(id, lot);
     this.record(actor, id, input.measuredAt, { type: "measurement_recorded", payload: input });
+    this.audited(actor, "lot.measure", id);
     this.changed();
     return structuredClone(lot);
   }
@@ -88,6 +98,7 @@ export class DemoLots {
     this.lots.set(child.id, child);
     this.record(actor, parent.id, now, { type: "lot_split", payload: { childId: child.id, grams } });
     this.record(actor, child.id, now, { type: "sublot_created", payload: { parentId: id, grams } });
+    this.audited(actor, "lot.split", id);
     this.changed();
     return structuredClone({ parent, child });
   }
@@ -105,6 +116,17 @@ export class DemoLots {
     this.replay.set(replayKey, { fingerprint, data: structuredClone(data) });
     this.changed();
     return data;
+  }
+
+  audit(organizationId: string): AuditEntry[] {
+    return structuredClone(this.auditLog.filter(entry => entry.organizationId === organizationId));
+  }
+
+  private audited(actor: Actor, action: AuditAction, entityId: string) {
+    this.auditLog.push({
+      id: randomUUID(), organizationId: actor.organizationId, actorId: actor.actorId, action, entityId,
+      requestId: actor.requestId ?? null, occurredAt: new Date().toISOString(), outcome: "success",
+    });
   }
 
   private record(actor: Actor, lotId: string, occurredAt: string, detail: {

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { createLotSchema, measurementSchema, splitSchema } from "../../contracts/v1.ts";
 import { container } from "../container.ts";
 import { digest, handle, idempotencyKey, notFound, ok, parse, readJson } from "../http.ts";
@@ -7,7 +8,7 @@ import { requireSession } from "../session.ts";
 type LotParams = { id: string };
 
 async function mutate(request: Request, scope: string, run: (actor: Actor, input: unknown) => unknown) {
-  const actor = requireSession(request, "producer");
+  const actor = { ...requireSession(request, "producer"), requestId: randomUUID() };
   const key = idempotencyKey(request);
   const { raw, input } = await readJson(request);
   return ok(container().lots.idempotent(actor, scope, key, digest(raw), () => run(actor, input)), 201);
