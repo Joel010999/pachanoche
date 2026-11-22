@@ -1,0 +1,16 @@
+{
+  "name": "pachanoche",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22.16"},
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env src/server.mjs",
+    "start": "node --env-file-if-exists=.env dist/src/server.mjs",
+    "test": "node --test",
+    "lint": "node scripts/check.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {"typescript":"^5.8.3"}
+}
