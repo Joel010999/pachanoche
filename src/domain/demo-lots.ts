@@ -1,11 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { maxGrams, type CreateLot, type Lot, type LotEvent, type Measurement, type SplitResult } from "../contracts/v1.ts";
+import type { Actor } from "../server/ports.ts";
 import { AppError } from "./errors.ts";
-
-const organizationId = "e8f1ef36-0252-41ba-8ee1-f23c2370c92f";
-const actorId = "15ba8a42-cb18-471b-9330-ba23d4f35efc";
-
-export { AppError as LotError };
 
 type Replay = { fingerprint: string; data: unknown };
 export type DemoSnapshot = {
@@ -38,31 +34,32 @@ export class DemoLots {
     this.onChange?.(this.snapshot());
   }
 
-  list(): Lot[] {
-    return structuredClone([...this.lots.values()]);
+  list(organizationId?: string): Lot[] {
+    const lots = [...this.lots.values()];
+    return structuredClone(organizationId ? lots.filter(lot => lot.organizationId === organizationId) : lots);
   }
 
-  get(id: string): Lot {
+  get(id: string, organizationId?: string): Lot {
     const lot = this.lots.get(id);
-    if (!lot) throw new AppError("NOT_FOUND", 404, "Lote inexistente.");
+    if (!lot || (organizationId && lot.organizationId !== organizationId)) throw new AppError("NOT_FOUND", 404, "Lote inexistente.");
     return structuredClone(lot);
   }
 
-  events(id: string): LotEvent[] {
-    this.get(id);
+  events(id: string, organizationId?: string): LotEvent[] {
+    this.get(id, organizationId);
     return structuredClone(this.history.get(id) ?? []);
   }
 
-  create(input: CreateLot): Lot {
-    const lot = { ...structuredClone(input), id: randomUUID(), organizationId, parentId: null, availableGrams: 0 };
+  create(actor: Actor, input: CreateLot): Lot {
+    const lot = { ...structuredClone(input), id: randomUUID(), organizationId: actor.organizationId, parentId: null, availableGrams: 0 };
     this.lots.set(lot.id, lot);
-    this.record(lot.id, input.extractedAt, { type: "extraction_declared", payload: input });
+    this.record(actor, lot.id, input.extractedAt, { type: "extraction_declared", payload: input });
     this.changed();
     return structuredClone(lot);
   }
 
-  measure(id: string, input: Measurement): Lot {
-    const lot = this.get(id);
+  measure(actor: Actor, id: string, input: Measurement): Lot {
+    const lot = this.get(id, actor.organizationId);
     if (lot.parentId || this.events(id).some(event => event.type === "measurement_recorded")) {
       throw new AppError("CONFLICT", 409, "El lote ya tiene una masa inicial.");
     }
@@ -71,13 +68,13 @@ export class DemoLots {
     }
     lot.availableGrams = input.grams;
     this.lots.set(id, lot);
-    this.record(id, input.measuredAt, { type: "measurement_recorded", payload: input });
+    this.record(actor, id, input.measuredAt, { type: "measurement_recorded", payload: input });
     this.changed();
     return structuredClone(lot);
   }
 
-  split(id: string, grams: number): SplitResult {
-    const parent = this.get(id);
+  split(actor: Actor, id: string, grams: number): SplitResult {
+    const parent = this.get(id, actor.organizationId);
     if (!Number.isSafeInteger(grams) || grams < 1) {
       throw new AppError("VALIDATION_ERROR", 400, "La masa del fraccionamiento es inválida.");
     }
@@ -89,14 +86,14 @@ export class DemoLots {
     const now = new Date().toISOString();
     this.lots.set(parent.id, parent);
     this.lots.set(child.id, child);
-    this.record(parent.id, now, { type: "lot_split", payload: { childId: child.id, grams } });
-    this.record(child.id, now, { type: "sublot_created", payload: { parentId: id, grams } });
+    this.record(actor, parent.id, now, { type: "lot_split", payload: { childId: child.id, grams } });
+    this.record(actor, child.id, now, { type: "sublot_created", payload: { parentId: id, grams } });
     this.changed();
     return structuredClone({ parent, child });
   }
 
-  idempotent(scope: string, key: string, fingerprint: string, operation: () => unknown): unknown {
-    const replayKey = JSON.stringify([scope, key]);
+  idempotent(actor: Actor, scope: string, key: string, fingerprint: string, operation: () => unknown): unknown {
+    const replayKey = JSON.stringify([actor.organizationId, actor.actorId, scope, key]);
     const previous = this.replay.get(replayKey);
     if (previous) {
       if (previous.fingerprint !== fingerprint) {
@@ -110,13 +107,13 @@ export class DemoLots {
     return data;
   }
 
-  private record(lotId: string, occurredAt: string, detail: {
+  private record(actor: Actor, lotId: string, occurredAt: string, detail: {
     [K in LotEvent["type"]]: Pick<Extract<LotEvent, { type: K }>, "type" | "payload">;
   }[LotEvent["type"]]) {
     const events = this.history.get(lotId) ?? [];
     events.push({
       ...structuredClone(detail), id: randomUUID(), lotId, sequence: events.length + 1,
-      occurredAt, recordedAt: new Date().toISOString(), actorId,
+      occurredAt, recordedAt: new Date().toISOString(), actorId: actor.actorId,
     });
     this.history.set(lotId, events);
   }

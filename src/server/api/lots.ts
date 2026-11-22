@@ -1,30 +1,36 @@
 import { createLotSchema, measurementSchema, splitSchema } from "../../contracts/v1.ts";
 import { container } from "../container.ts";
-import { handle, idempotencyKey, notFound, ok, parse, readJson, digest } from "../http.ts";
+import { digest, handle, idempotencyKey, notFound, ok, parse, readJson } from "../http.ts";
+import type { Actor } from "../ports.ts";
+import { requireSession } from "../session.ts";
 
 type LotParams = { id: string };
 
-async function mutate(request: Request, scope: string, run: (input: unknown) => unknown) {
+async function mutate(request: Request, scope: string, run: (actor: Actor, input: unknown) => unknown) {
+  const actor = requireSession(request, "producer");
   const key = idempotencyKey(request);
   const { raw, input } = await readJson(request);
-  return ok(container().lots.idempotent(scope, key, digest(raw), () => run(input)), 201);
+  return ok(container().lots.idempotent(actor, scope, key, digest(raw), () => run(actor, input)), 201);
 }
 
-export const listLots = () => handle(() => ok(container().lots.list()));
+export const listLots = (request: Request) =>
+  handle(() => ok(container().lots.list(requireSession(request).organizationId)));
 
-export const getLot = (_request: Request, { id }: LotParams) => handle(() => ok(container().lots.get(id)));
+export const getLot = (request: Request, { id }: LotParams) =>
+  handle(() => ok(container().lots.get(id, requireSession(request).organizationId)));
 
-export const lotEvents = (_request: Request, { id }: LotParams) => handle(() => ok(container().lots.events(id)));
+export const lotEvents = (request: Request, { id }: LotParams) =>
+  handle(() => ok(container().lots.events(id, requireSession(request).organizationId)));
 
 export const createLot = (request: Request) =>
-  handle(() => mutate(request, "lots", input => container().lots.create(parse(createLotSchema, input))));
+  handle(() => mutate(request, "lots", (actor, input) => container().lots.create(actor, parse(createLotSchema, input))));
 
 export const recordMeasurement = (request: Request, { id }: LotParams) =>
-  handle(() => mutate(request, `lots/${id}/measurements`, input => {
+  handle(() => mutate(request, `lots/${id}/measurements`, (actor, input) => {
     const measurement = parse(measurementSchema, input);
     if (measurement.evidenceId) notFound();
-    return container().lots.measure(id, measurement);
+    return container().lots.measure(actor, id, measurement);
   }));
 
 export const splitLot = (request: Request, { id }: LotParams) =>
-  handle(() => mutate(request, `lots/${id}/splits`, input => container().lots.split(id, parse(splitSchema, input).grams)));
+  handle(() => mutate(request, `lots/${id}/splits`, (actor, input) => container().lots.split(actor, id, parse(splitSchema, input).grams)));
