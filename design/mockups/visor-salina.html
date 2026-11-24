@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Visor de salina</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0f1f19;--panel:#0f1a16;--line:rgba(255,255,255,.12);--txt:#eef3ee;--mut:#a9b8b0;--lime:#d8eb85;--warn:#f2b46b}
+  *{box-sizing:border-box}
+  body{margin:0;width:1600px;height:1000px;font-family:Inter,system-ui,sans-serif;background:#0b1411;color:var(--txt);display:flex;overflow:hidden}
+  .view{position:relative;width:1160px;height:1000px;background:url("../../public/salina/piletas-1.jpg") center/cover;overflow:hidden}
+  .view::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45) 0,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 70%,rgba(0,0,0,.6) 100%);pointer-events:none}
+  .top{position:absolute;z-index:2;left:28px;right:28px;top:24px;display:flex;justify-content:space-between;align-items:flex-start}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand b{font-size:20px;letter-spacing:.2px}
+  .live{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);font-size:13px;font-weight:600}
+  .live i{width:9px;height:9px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 4px rgba(255,77,77,.25)}
+  .sub{margin-top:8px;font-size:14px;color:#e4ece6}
+  .chips{display:flex;gap:8px}
+  .chip{padding:8px 12px;border-radius:12px;background:rgba(10,20,16,.55);backdrop-filter:blur(10px);border:1px solid var(--line);font-size:13px;line-height:1.25}
+  .chip small{display:block;color:var(--mut);font-size:11px}
+  .tabs{position:absolute;z-index:2;left:28px;top:118px;display:flex;background:rgba(10,20,16,.55);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:12px;padding:4px}
+  .tabs span{padding:8px 14px;border-radius:9px;font-size:13px;font-weight:600;color:var(--mut)}
+  .tabs .on{background:var(--lime);color:var(--ink)}
+  .pin{position:absolute;z-index:2;transform:translate(-50%,-100%)}
+  .tag{padding:8px 12px;border-radius:12px;background:rgba(10,20,16,.72);backdrop-filter:blur(10px);border:1px solid var(--line);font-size:13px;white-space:nowrap}
+  .tag b{display:block;font-size:14px}
+  .tag.sel{border:1.5px solid var(--lime);box-shadow:0 0 0 6px rgba(216,235,133,.15)}
+  .stem{width:2px;height:38px;margin:0 auto;background:linear-gradient(var(--lime),rgba(216,235,133,0))}
+  .dot{width:14px;height:14px;margin:-4px auto 0;border-radius:50%;background:var(--lime);box-shadow:0 0 0 6px rgba(216,235,133,.3)}
+  .ring{position:absolute;z-index:1;border:2px dashed rgba(216,235,133,.85);border-radius:50%}
+  .timeline{position:absolute;z-index:2;left:28px;right:28px;bottom:24px;padding:14px 18px;border-radius:16px;background:rgba(10,20,16,.6);backdrop-filter:blur(12px);border:1px solid var(--line)}
+  .tl-head{display:flex;justify-content:space-between;font-size:13px;color:var(--mut)}
+  .track{position:relative;height:4px;margin:18px 6px 10px;background:rgba(255,255,255,.18);border-radius:4px}
+  .track .fill{position:absolute;left:0;top:0;bottom:0;width:86%;background:var(--lime);border-radius:4px}
+  .ev{position:absolute;top:-6px;width:16px;height:16px;border-radius:50%;background:var(--panel);border:3px solid var(--lime);transform:translateX(-50%)}
+  .labels{position:relative;height:18px;font-size:12px}
+  .labels span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+  .credit{position:absolute;z-index:2;right:30px;bottom:118px;font-size:11px;color:rgba(255,255,255,.75)}
+  aside{width:440px;height:1000px;background:var(--panel);border-left:1px solid var(--line);padding:26px 26px 20px;display:flex;flex-direction:column;gap:18px;overflow:hidden}
+  .k{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:600}
+  h1{margin:4px 0 0;font-size:28px;line-height:1.1}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .badge{padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+  .ok{background:var(--lime);color:var(--ink)}
+  .card{border:1px solid var(--line);border-radius:16px;padding:16px;background:rgba(255,255,255,.03)}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;margin-top:10px}
+  .grid div{font-size:14px}.grid small{display:block;color:var(--mut);font-size:12px}
+  .bar{display:flex;height:12px;border-radius:999px;overflow:hidden;margin:12px 0 8px}
+  .comp{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+  .comp .l{display:flex;justify-content:space-between;font-size:13px}
+  .comp .t{height:6px;border-radius:6px;background:rgba(255,255,255,.1);margin-top:4px}
+  .comp .t i{display:block;height:100%;border-radius:6px;background:#9fd3cf}
+  .ex{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--warn);color:var(--warn);font-weight:600}
+  .mono{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#d7e2db}
+  .btn{display:flex;justify-content:center;align-items:center;height:44px;border-radius:12px;background:var(--lime);color:var(--ink);font-weight:700;font-size:14px}
+</style>
+</head>
+<body>
+<section class="view" aria-label="Vista en vivo de las piletas">
+  <div class="top">
+    <div>
+      <div class="brand"><b>Sal de Origen</b><span class="live"><i></i>EN VIVO</span></div>
+      <div class="sub">Salinas Grandes · Piletas sector norte · Cámara 02 · 13:05 ART</div>
+    </div>
+    <div class="chips">
+      <div class="chip"><small>Temperatura</small>14 °C</div>
+      <div class="chip"><small>Viento</small>22 km/h SO</div>
+      <div class="chip"><small>Radiación UV</small>Muy alta</div>
+      <div class="chip"><small>Altitud</small>3.450 m</div>
+    </div>
+  </div>
+  <div class="tabs"><span class="on">Foto en vivo</span><span>3D</span><span>Satélite</span></div>
+
+  <div class="ring" style="left:266px;top:440px;width:118px;height:44px"></div>
+  <div class="pin" style="left:325px;top:452px">
+    <div class="tag sel"><b>Lote SDO-7K2Q</b>Sal artesanal · 70 kg</div>
+    <div class="stem"></div><div class="dot"></div>
+  </div>
+  <div class="pin" style="left:600px;top:585px">
+    <div class="tag"><b>Pileta P-03</b>Cristalización en curso</div>
+    <div class="stem"></div><div class="dot"></div>
+  </div>
+  <div class="pin" style="left:822px;top:405px">
+    <div class="tag"><b>Cuadrilla 2</b>Cosecha · 2 personas</div>
+    <div class="stem"></div><div class="dot"></div>
+  </div>
+
+  <div class="credit">Foto: Gonzalo Rivero, CC BY-SA 3.0, Wikimedia Commons</div>
+  <div class="timeline">
+    <div class="tl-head"><span>Recorrido del lote SDO-7K2Q</span><span>15 oct 2026 → hoy</span></div>
+    <div class="track"><div class="fill"></div>
+      <span class="ev" style="left:0%"></span><span class="ev" style="left:22%"></span><span class="ev" style="left:45%"></span><span class="ev" style="left:68%"></span><span class="ev" style="left:86%"></span>
+    </div>
+    <div class="labels"><span style="left:3%">Extracción</span><span style="left:22%">Pesaje 100 kg</span><span style="left:45%">Evidencia</span><span style="left:68%">Fracción 30 kg</span><span style="left:86%">Anclado en Fuji</span></div>
+  </div>
+</section>
+
+<aside aria-label="Información del lote">
+  <div>
+    <div class="row"><span class="k">Lote seleccionado</span><span class="badge ok">Verificado en Fuji</span></div>
+    <h1>SDO-7K2Q</h1>
+    <div style="color:var(--mut);margin-top:6px;font-size:14px">Sal artesanal de cosecha en piletas</div>
+  </div>
+
+  <div class="card">
+    <div class="k">Origen</div>
+    <div class="grid">
+      <div><small>Lugar</small>Salinas Grandes, Jujuy</div>
+      <div><small>Extracción</small>15 oct 2026</div>
+      <div><small>Ubicación GPS</small>Dentro del área · ±12 m</div>
+      <div><small>Productor</small>Cooperativa demo</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row"><span class="k">Masa</span><span style="font-size:13px;color:var(--mut)">Pesaje inicial 100 kg</span></div>
+    <div class="bar"><span style="flex:70;background:var(--lime)"></span><span style="flex:30;background:#5f8f7c"></span></div>
+    <div class="row" style="font-size:14px"><span><b>70 kg</b> disponibles</span><span><b>30 kg</b> en SDO-9M4P</span></div>
+  </div>
+
+  <div class="card">
+    <div class="row"><span class="k">Composición</span><span class="ex">Ejemplo · sin informe</span></div>
+    <div class="comp">
+      <div><div class="l"><span>Cloruro de sodio (NaCl)</span><b>— %</b></div><div class="t"><i style="width:96%"></i></div></div>
+      <div><div class="l"><span>Humedad</span><b>— %</b></div><div class="t"><i style="width:18%"></i></div></div>
+      <div><div class="l"><span>Insolubles</span><b>— %</b></div><div class="t"><i style="width:8%"></i></div></div>
+    </div>
+    <div style="font-size:12px;color:var(--mut);margin-top:10px">Se completa con el informe de laboratorio sobre una muestra identificada.</div>
+  </div>
+
+  <div class="card">
+    <div class="k">Integridad del registro</div>
+    <div class="grid" style="grid-template-columns:1fr">
+      <div><small>SHA-256 del remito</small><span class="mono">4e1b9c…07d2a90c</span></div>
+      <div><small>Transacción Avalanche Fuji</small><span class="mono">0x8f3a…c21b · 2 confirmaciones</span></div>
+    </div>
+  </div>
+
+  <div class="btn" style="margin-top:auto">Verificar un archivo</div>
+</aside>
+</body>
+</html>

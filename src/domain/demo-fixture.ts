@@ -8,6 +8,7 @@ const lot = store.create({
   location: { latitude: -23.64, longitude: -66.01, recordedAt: date, accuracyM: 12 },
 });
 store.measure(lot.id, { grams: 100_000, measuredAt: date, instrument: "Balanza de demostración" });
+store.split(lot.id, 30_000);
 
 const globalDemo = globalThis as typeof globalThis & { salDeOrigenDemo?: DemoLots };
 export const demoLots = globalDemo.salDeOrigenDemo ??= store;
