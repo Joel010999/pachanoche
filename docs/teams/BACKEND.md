@@ -4,7 +4,7 @@ Rama `feature/backend`. Responsable: Joel.
 
 Núcleo de inventario y roles. Mantiene la fuente de verdad para masa, auditoría y movimientos. Transferencias y recepción quedan en P1.
 
-## [B1 · Persistir lotes, extracción y mediciones](https://github.com/Joel010999/pachanoche/issues/5)
+## [B1 · Persistir lotes, extracción y mediciones](https://github.com/Joel010999/saldeorigen/issues/5)
 
 Crear migraciones PostgreSQL, roles demo, alta, pesaje y geolocalización con auditoría.
 
@@ -12,7 +12,7 @@ Crear migraciones PostgreSQL, roles demo, alta, pesaje y geolocalización con au
 - Dependencias. Contratos v1.
 - Entregable. Migraciones, API y fixture.
 
-## [B2 · Adjuntar evidencia privada y publicar proyección](https://github.com/Joel010999/pachanoche/issues/6)
+## [B2 · Adjuntar evidencia privada y publicar proyección](https://github.com/Joel010999/saldeorigen/issues/6)
 
 Guardar bytes privados, SHA-256, metadatos y evento. Generar proyección pública mediante consentimiento y código opaco.
 
@@ -20,7 +20,7 @@ Guardar bytes privados, SHA-256, metadatos y evento. Generar proyección públic
 - Dependencias. B1 para integración.
 - Entregable. Servicio de evidencia y endpoint público.
 
-## [B3 · Fraccionar con saldo transaccional](https://github.com/Joel010999/pachanoche/issues/7)
+## [B3 · Fraccionar con saldo transaccional](https://github.com/Joel010999/saldeorigen/issues/7)
 
 Bloquear lote origen, crear hijo, descontar saldo y auditar con idempotencia en una transacción.
 

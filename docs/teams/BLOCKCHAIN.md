@@ -4,7 +4,7 @@ Rama `feature/blockchain`. Responsable: Dani.
 
 Verificabilidad documental en Fuji con mínimos datos públicos. El registro representa información documental. Quedan fuera propiedad, derechos de extracción e instrumentos financieros.
 
-## [C1 · Diseñar y probar contrato de anclaje](https://github.com/Joel010999/pachanoche/issues/8)
+## [C1 · Diseñar y probar contrato de anclaje](https://github.com/Joel010999/saldeorigen/issues/8)
 
 Implementar registro Solidity de IDs, digest SHA-256 y eventos mínimos, con rol de escritor y protección contra duplicados.
 
@@ -12,7 +12,7 @@ Implementar registro Solidity de IDs, digest SHA-256 y eventos mínimos, con rol
 - Dependencias. Especificación Fuji.
 - Entregable. Contrato, pruebas y scripts.
 
-## [C2 · Integrar adaptador Fuji y outbox](https://github.com/Joel010999/pachanoche/issues/9)
+## [C2 · Integrar adaptador Fuji y outbox](https://github.com/Joel010999/saldeorigen/issues/9)
 
 Validar chain ID, enviar desde firmante de prueba, registrar nonce y txHash y reconciliar recibos.
 
@@ -20,7 +20,7 @@ Validar chain ID, enviar desde firmante de prueba, registrar nonce y txHash y re
 - Dependencias. C1 y acceso a RPC, contrato y AVAX de prueba.
 - Entregable. Adaptador, despliegue y recibo reproducible.
 
-## [C3 · Exponer verificación de integridad y recibo](https://github.com/Joel010999/pachanoche/issues/10)
+## [C3 · Exponer verificación de integridad y recibo](https://github.com/Joel010999/saldeorigen/issues/10)
 
 Vincular hash confirmado a evidencia y exponer estado, red, contrato y transacción en la proyección.
 

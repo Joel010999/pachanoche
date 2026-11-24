@@ -4,7 +4,7 @@ Rama `feature/frontend`. Responsable: Raúl.
 
 Interfaz responsive, identidad, sesión demo y flujo de trazabilidad. Consume la API v1 y proyecciones públicas. Las integraciones espaciales y blockchain viven en servicios.
 
-## [F1 · Construir alta y tablero de lotes](https://github.com/Joel010999/pachanoche/issues/2)
+## [F1 · Construir alta y tablero de lotes](https://github.com/Joel010999/saldeorigen/issues/2)
 
 Implementar selector de sesión demo y formulario de alta, medición y GPS con contrato v1.
 
@@ -12,7 +12,7 @@ Implementar selector de sesión demo y formulario de alta, medición y GPS con c
 - Dependencias. B1. Desarrollar contra fixture v1.
 - Entregable. Pantallas y componentes reutilizables.
 
-## [F2 · Integrar evidencias, historial y sublotes](https://github.com/Joel010999/pachanoche/issues/3)
+## [F2 · Integrar evidencias, historial y sublotes](https://github.com/Joel010999/saldeorigen/issues/3)
 
 Agregar selección y subida de archivo, historial por secuencia y formulario de fraccionamiento.
 
@@ -20,7 +20,7 @@ Agregar selección y subida de archivo, historial por secuencia y formulario de 
 - Dependencias. B2 y B3. Desarrollar contra fixtures.
 - Entregable. Flujo productor integrado.
 
-## [F3 · Publicar ficha QR y verificación local](https://github.com/Joel010999/pachanoche/issues/4)
+## [F3 · Publicar ficha QR y verificación local](https://github.com/Joel010999/saldeorigen/issues/4)
 
 Implementar ficha pública, QR con URL canónica, foto territorial y estados del anclaje. Calcular SHA-256 local del archivo seleccionado.
 
