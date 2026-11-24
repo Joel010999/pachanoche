@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "start": "next start",
+    "demo": "node scripts/demo.mjs",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "compile:contracts": "node scripts/compile-contracts.mjs",

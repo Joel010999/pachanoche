@@ -23,6 +23,24 @@ Usar Node.js 22.16 o superior y abrir http://localhost:3000. La demo funciona co
 
 La base no requiere secretos. Copiar `.env.example` a `.env.local` al integrar proveedores. `DATABASE_URL` identifica PostgreSQL, `FUJI_RPC_URL` y `FUJI_CONTRACT_ADDRESS` configuran la red de pruebas, y `PUBLIC_BASE_URL` define el origen canónico para el QR. Las credenciales de firma se provisionarán en el entorno del worker.
 
+## Demo en vivo
+
+```sh
+npm ci
+npm run demo:reset
+npm run demo
+```
+
+`npm run demo` compila si hace falta, escucha en la red local y muestra la dirección para el celular (por ejemplo `http://192.168.1.94:3000`). El QR de cada ficha usa esa dirección. Si se detecta una interfaz equivocada, definí `PUBLIC_BASE_URL` antes de iniciar. Con `--build` fuerza la compilación.
+
+| Pantalla | Ruta |
+| --- | --- |
+| Visor de la salina | `/` |
+| Panel del productor: persona demo, alta, pesaje, evidencia, anclaje, fraccionamiento y publicación | `/productor` |
+| Ficha pública con QR y verificación local del documento | `/lotes/{código}` |
+
+Sin `FUJI_CONTRACT_ADDRESS` y `FUJI_PRIVATE_KEY` en `.env.local` el anclaje es simulado y la interfaz lo indica como tal.
+
 ## Producto y equipo
 
 - [Especificación](docs/PRODUCT_SPEC.md), [alcance P0–P2](docs/MVP_SCOPE.md), [hoja de ruta](docs/ROADMAP.md) y [guion de demo](docs/DEMO_SCRIPT.md).
