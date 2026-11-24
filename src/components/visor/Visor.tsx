@@ -63,9 +63,9 @@ export function Visor({ model }: { model: VisorModel }) {
         {tab === "satellite" && (
           <div className={styles.pane}>
             <Image
-              src="https://copernicuslac-chile.eu/wp-content/uploads/2026/04/Salinas-Grandes.jpg"
+              src="/geo/salinas-grandes.jpg"
               alt="Vista satelital Sentinel-2 de Salinas Grandes, 23 de febrero de 2025"
-              fill unoptimized sizes="100vw" className={styles.satellite}
+              fill sizes="100vw" className={styles.satellite}
             />
           </div>
         )}

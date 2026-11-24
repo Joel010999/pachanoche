@@ -17,7 +17,7 @@ npm ci
 npm run dev
 ```
 
-Usar Node.js 22.16 o superior y abrir http://localhost:3000. La demo funciona con datos sintéticos en memoria y se reinicia al reiniciar el servidor. Ejecutar `npm run lint`, `npm run typecheck`, `npm test` y `npm run build`. Para producción local ejecutar `npm start` después del build.
+Usar Node.js 22.16 o superior y abrir http://localhost:3000. La demo funciona con datos sintéticos guardados en `.data/` y sobrevive a reinicios. `npm run demo:reset` vuelve al estado inicial y `npm run demo:seed` lo regenera (con el servidor detenido). Elegí una persona demo con `POST /api/v1/session`. Ejecutar `npm run lint`, `npm run typecheck`, `npm test` y `npm run build`. Para producción local ejecutar `npm start` después del build.
 
 La base no requiere secretos. Copiar `.env.example` a `.env.local` al integrar proveedores. `DATABASE_URL` identifica PostgreSQL, `FUJI_RPC_URL` y `FUJI_CONTRACT_ADDRESS` configuran la red de pruebas, y `PUBLIC_BASE_URL` define el origen canónico para el QR. Las credenciales de firma se provisionarán en el entorno del worker.
 

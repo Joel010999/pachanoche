@@ -11,6 +11,12 @@ Prefijo `/api/v1`. Salvo evidencias binarias, intercambiar JSON UTF-8. Mutacione
 | POST /lots/{id}/evidence | multipart file con MIME permitido y visibilidad | 201, EvidenceSummary |
 | POST /lots/{id}/splits | grams | 201, parent y child |
 | GET /lots/{id}/events | UUID y sesión autorizada | 200, eventos en secuencia |
+| GET /lots/{id}/evidence | sesión de la organización | 200, EvidenceSummary[] |
+| GET /lots/{id}/evidence/{evidenceId} | sesión de la organización | 200, bytes originales con cabecera X-Evidence-SHA256 |
+| GET /session | — | 200, persona actual o null y personas demo |
+| POST /session | personaId | 200, cookie HttpOnly `sdo_persona` |
+| DELETE /session | — | 204, cierra la sesión demo |
+| GET /audit | sesión admin | 200, auditoría de la organización |
 | POST /lots/{id}/publish | consentimiento explícito y campos aprobados | 201, PublicLot |
 | GET /public/lots/{code} | código opaco | 200, PublicLot |
 | GET /extraction-sites/{id}/observations | UUID | 200, SatelliteObservation[] |
@@ -23,4 +29,4 @@ Prefijo `/api/v1`. Salvo evidencias binarias, intercambiar JSON UTF-8. Mutacione
 
 `location` contiene latitude, longitude, recordedAt, accuracyM opcional y siteId opcional. Identidad del responsable desde la sesión. El QR codifica `PUBLIC_BASE_URL/lotes/{code}`. La ficha permite obtener un digest público cuando se autorizó su publicación y compararlo con bytes locales.
 
-Errores: 400 VALIDATION_ERROR, 401 UNAUTHENTICATED, 403 FORBIDDEN, 404 NOT_FOUND, 409 INSUFFICIENT_MASS, IDEMPOTENCY_CONFLICT o CONFLICT, 413 PAYLOAD_TOO_LARGE, 415 UNSUPPORTED_MEDIA_TYPE, 429 RATE_LIMITED, 500 INTERNAL_ERROR, 503 PROVIDER_UNAVAILABLE. La proyección pública excluye usuarios, coordenadas precisas y archivos. Para un lote ajeno responder 404. La demo base expone listado, alta, consulta, pesaje, fraccionamiento e historial sin sesión con datos sintéticos.
+Errores: 400 VALIDATION_ERROR, 401 UNAUTHENTICATED, 403 FORBIDDEN, 404 NOT_FOUND, 409 INSUFFICIENT_MASS, IDEMPOTENCY_CONFLICT o CONFLICT, 413 PAYLOAD_TOO_LARGE, 415 UNSUPPORTED_MEDIA_TYPE, 429 RATE_LIMITED, 500 INTERNAL_ERROR, 503 PROVIDER_UNAVAILABLE. La proyección pública excluye usuarios, coordenadas precisas y archivos. Para un lote ajeno responder 404. La demo local usa sesiones por persona demo (cookie) y guarda datos en `.data/` (lotes en `demo.json`, originales en `evidence/` por SHA-256). Sólo `producer` modifica lotes; cualquier miembro de la organización consulta. La ficha pública muestra producto, área declarada y fecha, más las secciones elegidas al publicar (`events`, `evidence` con visibilidad `digest_public`, `observations`, `geofence`). Un sublote publicado incluye el historial y la evidencia pública de su origen.

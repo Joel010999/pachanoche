@@ -1,0 +1,306 @@
+{
+  "contractName": "AnchorRegistry",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_writer",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "anchorId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "AnchorConflict",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "kind",
+          "type": "uint8"
+        }
+      ],
+      "name": "InvalidEventKind",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "Unauthorized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "param",
+          "type": "string"
+        }
+      ],
+      "name": "ZeroBytes32",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "anchorId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "lotRef",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "digest",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "eventKind",
+          "type": "uint8"
+        }
+      ],
+      "name": "Anchored",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldWriter",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newWriter",
+          "type": "address"
+        }
+      ],
+      "name": "WriterTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "anchorId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "lotRef",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "digest",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "eventKind",
+          "type": "uint8"
+        }
+      ],
+      "name": "anchor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "anchors",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "lotRef",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "digest",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "eventKind",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint64",
+          "name": "timestamp",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "blockNumber",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "digestToAnchorId",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "anchorId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getAnchor",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "lotRef",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "digest",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "eventKind",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint64",
+          "name": "timestamp",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "blockNumber",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newWriter",
+          "type": "address"
+        }
+      ],
+      "name": "transferWriter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "digest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "verifyDigest",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "exists",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "anchorId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "lotRef",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "eventKind",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint64",
+          "name": "timestamp",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "writer",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "6080604052348015600e575f5ffd5b50604051610727380380610727833981016040819052602b916074565b6001600160a01b03811660515760405163d92e233d60e01b815260040160405180910390fd5b5f80546001600160a01b0319166001600160a01b0392909216919091179055609f565b5f602082840312156083575f5ffd5b81516001600160a01b03811681146098575f5ffd5b9392505050565b61067b806100ac5f395ff3fe608060405234801561000f575f5ffd5b506004361061007a575f3560e01c80635bc9f29d116100585780635bc9f29d1461010c5780637feb51d91461011f578063b01b6d53146101a8578063f394c3b0146101f3575f5ffd5b806319d883d81461007e5780634120dbaf146100cd578063453a2abc146100e2575b5f5ffd5b61009161008c3660046105be565b610220565b60408051951515865260208601949094529284019190915260ff16606083015267ffffffffffffffff16608082015260a0015b60405180910390f35b6100e06100db3660046105d5565b610292565b005b5f546100f4906001600160a01b031681565b6040516001600160a01b0390911681526020016100c4565b6100e061011a366004610602565b610343565b61016e61012d3660046105be565b5f9081526001602081905260409091208054918101546002909101549192909160ff81169167ffffffffffffffff6101008304811692600160481b90041690565b60408051958652602086019490945260ff9092169284019290925267ffffffffffffffff918216606084015216608082015260a0016100c4565b61016e6101b63660046105be565b600160208190525f918252604090912080549181015460029091015460ff81169067ffffffffffffffff6101008204811691600160481b90041685565b6102126102013660046105be565b60026020525f908152604090205481565b6040519081526020016100c4565b5f8181526002602052604081205481908190819081908061025057505f9450849350839250829150819050610289565b5f818152600160208190526040909120805460029091015491975091955090935060ff81169250610100900467ffffffffffffffff1690505b91939590929450565b5f546001600160a01b031633146102c35760405163472511eb60e11b81523360048201526024015b60405180910390fd5b6001600160a01b0381166102ea5760405163d92e233d60e01b815260040160405180910390fd5b5f80546040516001600160a01b03808516939216917f3a7126fd54d2bd6af1d6ed7b69ef2f4404ca51b3839615bb394d32f7d0fcd5ab91a35f80546001600160a01b0319166001600160a01b0392909216919091179055565b5f546001600160a01b0316331461036f5760405163472511eb60e11b81523360048201526024016102ba565b836103a857604051630a767c7560e01b8152602060048201526008602482015267185b98da1bdc925960c21b60448201526064016102ba565b826103df57604051630a767c7560e01b81526020600482015260066024820152653637ba2932b360d11b60448201526064016102ba565b8161041657604051630a767c7560e01b8152602060048201526006602482015265191a59d95cdd60d21b60448201526064016102ba565b8060ff1660011415801561042e57508060ff16600214155b1561045157604051638aecdebb60e01b815260ff821660048201526024016102ba565b5f84815260016020819052604090912090810154156104b95780548414801561047d5750828160010154145b80156104925750600281015460ff8381169116145b1561049d57506105b8565b60405163586186bd60e01b8152600481018690526024016102ba565b6040805160a081018252858152602080820186815260ff80871684860190815267ffffffffffffffff42811660608701908152438216608088019081525f8e815260018089528a822099518a55965196890196909655925160029788018054925194518416600160481b0270ffffffffffffffff00000000000000000019959094166101000268ffffffffffffffffff19909316919095161717919091161790558681529190522054610577575f8381526002602052604090208590555b6040805184815260ff84166020820152859187917f44494616f34b332e107836ef989aee14cad1cf92488b3fa74617e6c3714f9c8c910160405180910390a3505b50505050565b5f602082840312156105ce575f5ffd5b5035919050565b5f602082840312156105e5575f5ffd5b81356001600160a01b03811681146105fb575f5ffd5b9392505050565b5f5f5f5f60808587031215610615575f5ffd5b843593506020850135925060408501359150606085013560ff8116811461063a575f5ffd5b93969295509093505056fea2646970667358221220701f645952036afa4dfc1841eb3b13afb2b8c4ccde9b4ab3238714cb1aeef7df64736f6c63430008270033"
+}

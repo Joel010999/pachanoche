@@ -11,8 +11,11 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
+    "compile:contracts": "node scripts/compile-contracts.mjs",
     "test": "node --disable-warning=ExperimentalWarning --experimental-strip-types --test tests/*.test.ts",
-    "build": "next build"
+    "build": "next build",
+    "demo:reset": "node --disable-warning=ExperimentalWarning --experimental-strip-types scripts/demo-data.ts reset",
+    "demo:seed": "node --disable-warning=ExperimentalWarning --experimental-strip-types scripts/demo-data.ts seed"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -21,6 +24,8 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "three": "^0.187.0",
+    "solc": "^0.8.39",
+    "viem": "^2.58.4",
     "zod": "^4.1.0"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import type { Lot, LotEvent } from "@/contracts/v1";
-import type { DemoLots } from "@/domain/demo-lots";
+import type { LotStore } from "@/server/ports";
 
 /**
  * Modelo de la vista del visor. Masa y lotes salen del almacén demo.
@@ -62,7 +62,7 @@ function displayCode(lot: Lot, index: number) {
   return lot.parentId ? `SDO-9M4P${index > 1 ? `-${index}` : ""}` : `SDO-7K2Q${index > 0 ? `-${index}` : ""}`;
 }
 
-export function buildVisorModel(store: DemoLots): VisorModel {
+export function buildVisorModel(store: Pick<LotStore, "list" | "events">): VisorModel {
   const lots = store.list();
   const root = lots.find(lot => !lot.parentId) ?? lots[0];
   const children = lots.filter(lot => lot.parentId === root.id);
@@ -118,7 +118,7 @@ export function buildVisorModel(store: DemoLots): VisorModel {
         { label: "Extracción", at: 0 },
         { label: `Pesaje ${kg(initialGrams)} kg`, at: 22 },
         { label: "Evidencia", at: 45 },
-        { label: `Fracción ${splitKg ?? 0} kg`, at: 68 },
+        { label: splitKg ? `Fracción ${splitKg} kg` : "Fraccionamiento", at: 68 },
         { label: "Anclado en Fuji", at: 86 },
       ],
     },

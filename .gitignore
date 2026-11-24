@@ -11,3 +11,5 @@ next-env.d.ts
 # capturas temporales de design/scripts/shoot.sh
 design/mockups/.captura.png
 design/mockups/.diff.png
+.data/
+.agent/
