@@ -57,3 +57,10 @@ export const publicLot = (_request: Request, { code }: { code: string }) =>
     if (!publication) throw new AppError("NOT_FOUND", 404, "Ficha inexistente.");
     return ok(await projectPublicLot(publication));
   });
+
+export const currentPublication = (request: Request, { id }: LotParams) =>
+  handle(async () => {
+    const publication = container().lots.publicationOf(id, requireSession(request).organizationId);
+    if (!publication) throw new AppError("NOT_FOUND", 404, "El lote no está publicado.");
+    return ok(await projectPublicLot(publication));
+  });

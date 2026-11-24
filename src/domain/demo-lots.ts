@@ -210,6 +210,12 @@ export class DemoLots {
     return structuredClone(publication);
   }
 
+  publicationOf(lotId: string, organizationId: string): Publication | undefined {
+    this.get(lotId, organizationId);
+    const publication = [...this.publications.values()].find(item => item.lotId === lotId);
+    return publication && structuredClone(publication);
+  }
+
   publication(code: string): Publication | undefined {
     const publication = publicCodePattern.test(code) ? this.publications.get(code) : undefined;
     return publication && structuredClone(publication);

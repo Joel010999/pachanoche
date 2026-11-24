@@ -36,6 +36,7 @@ export interface LotStore {
   anchoredDigest(sha256: string): DigestVerificationResult;
   publish(actor: Actor, lotId: string, fields: PublicField[]): Publication;
   publication(code: string): Publication | undefined;
+  publicationOf(lotId: string, organizationId: string): Publication | undefined;
   idempotent(actor: Actor, scope: string, key: string, fingerprint: string, operation: () => unknown): unknown;
   audit(organizationId: string): AuditEntry[];
 }

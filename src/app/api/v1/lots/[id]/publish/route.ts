@@ -1,4 +1,6 @@
-import { publishLot } from "@/server/api/publication";
+import { currentPublication, publishLot } from "@/server/api/publication";
 
-export const POST = async (request: Request, context: RouteContext<"/api/v1/lots/[id]/publish">) =>
-  publishLot(request, await context.params);
+type Context = RouteContext<"/api/v1/lots/[id]/publish">;
+
+export const GET = async (request: Request, context: Context) => currentPublication(request, await context.params);
+export const POST = async (request: Request, context: Context) => publishLot(request, await context.params);
