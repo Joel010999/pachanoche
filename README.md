@@ -41,6 +41,16 @@ npm run demo
 
 Sin `FUJI_CONTRACT_ADDRESS` y `FUJI_PRIVATE_KEY` en `.env.local` el anclaje es simulado y la interfaz lo indica como tal.
 
+### Anclaje real en Avalanche Fuji
+
+```sh
+npm run fuji -- wallet   # crea la wallet de prueba en .env.local y muestra su dirección
+npm run fuji -- deploy   # con AVAX de prueba cargado, despliega AnchorRegistry y guarda la dirección
+npm run fuji -- status   # confirma contrato, escritor autorizado y saldo
+```
+
+Cargá AVAX de prueba en la dirección que muestra `wallet` desde https://faucet-community.avax-test.network/. Al reiniciar `npm run demo` la interfaz pasa a "Fuji en vivo": cada anclaje es una transacción real y la ficha verifica contra el contrato. Si Fuji no responde, el anclaje falla con un aviso y se puede reintentar; nunca se muestra un recibo simulado como real.
+
 ## Producto y equipo
 
 - [Especificación](docs/PRODUCT_SPEC.md), [alcance P0–P2](docs/MVP_SCOPE.md), [hoja de ruta](docs/ROADMAP.md) y [guion de demo](docs/DEMO_SCRIPT.md).

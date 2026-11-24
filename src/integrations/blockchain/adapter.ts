@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { type AnchorSummary, type BlockchainAdapter } from "../../contracts/v1.ts";
 import { uuidToBytes32, sha256ToBytes32 } from "./codec.ts";
 import artifact from "./AnchorRegistry.json" with { type: "json" };
+import { AppError } from "../../domain/errors.ts";
 
 export interface FujiAdapterOptions {
   rpcUrl?: string;
@@ -108,8 +109,10 @@ export class FujiBlockchainAdapter implements BlockchainAdapter {
               resolve(liveSummary);
               return;
             } catch (err) {
-              console.warn("Fuji RPC no disponible o error en transacción, usando fallback de contingencia:", err);
-              // Caída controlada al modo contingencia para no trabar la demo
+              // En modo real nunca se devuelve un recibo simulado: el error se informa y se puede reintentar.
+              console.error("Fuji RPC no disponible o transacción rechazada:", err);
+              reject(new AppError("PROVIDER_UNAVAILABLE", 503, "Avalanche Fuji no confirmó el anclaje. Reintentá en unos segundos."));
+              return;
             }
           }
 
@@ -167,8 +170,9 @@ export class FujiBlockchainAdapter implements BlockchainAdapter {
       ],
     });
 
-    // Esperar recibo
-    await publicClient.waitForTransactionReceipt({ hash: txHash });
+    // Esperar recibo y exigir que la transacción no haya revertido
+    const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+    if (receipt.status !== "success") throw new Error(`La transacción ${txHash} revirtió.`);
 
     this.memoryAnchors.set(params.anchorId, {
       anchorId: params.anchorId,
@@ -295,5 +299,23 @@ export class FujiBlockchainAdapter implements BlockchainAdapter {
       }
     }
     return { exists: false };
+  }
+
+  /**
+   * Consulta el contrato AnchorRegistry en Fuji: fuente de verdad en modo real.
+   */
+  async onChainDigest(sha256: string): Promise<{ exists: false } | { exists: true; anchorId: string; eventKind: 1 | 2; timestamp: string }> {
+    if (!this.isLive) return { exists: false };
+    const { createPublicClient, http } = await import("viem");
+    const { avalancheFuji } = await import("viem/chains");
+    const client = createPublicClient({ chain: avalancheFuji, transport: http(this.rpcUrl) });
+    const [exists, anchorId, , eventKind, timestamp] = await client.readContract({
+      address: this.contractAddress!,
+      abi: artifact.abi,
+      functionName: "verifyDigest",
+      args: [sha256ToBytes32(sha256)],
+    }) as [boolean, `0x${string}`, `0x${string}`, number, bigint];
+    if (!exists) return { exists: false };
+    return { exists: true, anchorId, eventKind: eventKind === 2 ? 2 : 1, timestamp: new Date(Number(timestamp) * 1000).toISOString() };
   }
 }
