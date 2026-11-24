@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { VisorModel } from "@/app/visor-model";
 import styles from "./visor.module.css";
 
@@ -6,7 +7,10 @@ export function LotPanel({ lot }: { lot: VisorModel["lot"] }) {
   return (
     <aside className={styles.aside} aria-label="Información del lote">
       <div>
-        <div className={styles.row}><span className={styles.k}>Lote seleccionado</span><span className={styles.badge}>Verificado en Fuji</span></div>
+        <div className={styles.row}>
+          <span className={styles.k}>Lote seleccionado</span>
+          <span className={styles.badge} style={lot.integrity.anchored ? undefined : { background: "rgba(242, 180, 107, 0.16)", color: "var(--warn)" }}>{lot.integrity.badge}</span>
+        </div>
         <h1 className={styles.h1}>{lot.code}</h1>
         <p className={styles.lead}>{lot.product}</p>
       </div>
@@ -49,21 +53,22 @@ export function LotPanel({ lot }: { lot: VisorModel["lot"] }) {
       <section className={styles.card} aria-label="Integridad del registro">
         <h2 className={styles.k} style={{ margin: 0 }}>Integridad del registro</h2>
         <dl className={`${styles.grid} ${styles.grid1}`}>
-          <div><dt>SHA-256 del remito</dt><dd className={styles.mono}>{lot.sha256}</dd></div>
-          <div><dt>Transacción · bloque {lot.contract.block}</dt><dd className={styles.mono}>{lot.txHash} · {lot.confirmations} confirmaciones</dd></div>
+          <div><dt>SHA-256 del documento</dt><dd className={styles.mono}>{lot.integrity.sha256}</dd></div>
+          <div><dt>Transacción</dt><dd className={styles.mono}>{lot.integrity.txHash}</dd></div>
         </dl>
         <div className={styles.contract}>
-          <span className={styles.contractName}>Contrato {lot.contract.name}</span>
+          <span className={styles.contractName}>Contrato AnchorRegistry</span>
           <dl className={styles.contractRows}>
-            <div><dt>Dirección</dt><dd className={styles.mono}>{lot.contract.address}</dd></div>
-            <div><dt>Red</dt><dd>{lot.contract.chain}</dd></div>
-            <div><dt>Evento</dt><dd>{lot.contract.event}</dd></div>
-            <div><dt>lotRef</dt><dd className={styles.mono}>{lot.contract.lotRef}</dd></div>
+            <div><dt>Dirección</dt><dd className={styles.mono}>{lot.integrity.contractAddress}</dd></div>
+            <div><dt>Red</dt><dd>{lot.integrity.chain}</dd></div>
+            <div><dt>Evento</dt><dd>{lot.integrity.event}</dd></div>
+            <div><dt>lotRef</dt><dd className={styles.mono}>{lot.integrity.lotRef}</dd></div>
           </dl>
         </div>
       </section>
 
-      <button type="button" className={styles.btn}>Verificar un archivo</button>
+      <Link href={lot.integrity.verifyHref} className={styles.btn} style={{ textAlign: "center", textDecoration: "none" }}>{lot.integrity.verifyLabel}</Link>
+      <Link href="/productor" className={styles.muted} style={{ textAlign: "center" }}>Abrir el panel del productor</Link>
     </aside>
   );
 }

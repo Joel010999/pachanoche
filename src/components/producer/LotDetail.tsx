@@ -121,7 +121,7 @@ export function LotDetail({ lotId, canWrite, mode, baseUrl, onChanged, onSelect 
             return (
               <li key={file.id} className={styles.item} style={{ cursor: "default" }}>
                 <div className={styles.cardHead}>
-                  <b>{file.mediaType.replace("application/", "").replace("image/", "").toUpperCase()} · {(file.sizeBytes / 1024).toFixed(1)} KB</b>
+                  <b>{file.mediaType.replace("application/", "").replace("image/", "").toUpperCase()} · {file.sizeBytes < 1024 ? `${file.sizeBytes} B` : `${(file.sizeBytes / 1024).toFixed(1)} KB`}</b>
                   <span className={file.visibility === "digest_public" ? styles.badge : `${styles.badge} ${styles.badgeWarn}`}>{file.visibility === "digest_public" ? "Hash público" : "Privado"}</span>
                 </div>
                 <span className={styles.mono}>SHA-256 {file.sha256}</span>

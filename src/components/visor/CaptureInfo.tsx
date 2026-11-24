@@ -10,16 +10,17 @@ type Props = { capture: VisorModel["capture"]; kind: "photo" | "scene" };
 export function CaptureInfo({ capture, kind }: Props) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
-  const title = kind === "photo" ? "Datos de la foto" : "Escena satelital";
+  const title = kind === "photo" ? "Ubicación del lote" : "Escena satelital";
 
   const rows: Array<[string, string, string?]> = kind === "photo"
     ? [
-      ["Tomada", capture.photo.takenAt],
+      ["Declarada", capture.photo.takenAt],
       ["Ubicación", capture.photo.coords, styles.mono],
       ["Precisión", `${capture.photo.accuracy} · ${capture.photo.heading}`],
-      ["Geocerca", capture.photo.geofence, styles.geoOk],
+      ["Geocerca", capture.photo.geofence, capture.photo.geofence.startsWith("Dentro") ? styles.geoOk : undefined],
     ]
     : [
+      ["Escena", capture.scene.id, styles.mono],
       ["Tomada", capture.scene.takenAt],
       ["Satélite", capture.scene.platform],
       ["Resolución", capture.scene.resolution],

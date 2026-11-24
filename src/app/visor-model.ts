@@ -1,5 +1,6 @@
-import type { Lot, LotEvent } from "@/contracts/v1";
-import type { LotStore } from "@/server/ports";
+import type { Lot, LotEvent, SatelliteObservation } from "@/contracts/v1";
+import { organizations } from "@/domain/personas";
+import type { GeofenceService, LotStore } from "@/server/ports";
 
 /**
  * Modelo de la vista del visor. Masa y lotes salen del almacén demo.
@@ -35,16 +36,24 @@ export type VisorModel = {
     availableKg: number;
     child: { code: string; kg: number } | null;
     composition: Array<{ label: string; bar: number }>;
-    sha256: string;
-    txHash: string;
-    confirmations: number;
-    /** Simulado con la forma de AnchorRegistry (C1/C2): todavía no integrado. */
-    contract: { name: string; address: string; chain: string; block: string; event: string; lotRef: string };
+    /** Evidencia y anclaje reales del lote (C1–C3). */
+    integrity: {
+      badge: string;
+      anchored: boolean;
+      sha256: string;
+      txHash: string;
+      contractAddress: string;
+      chain: string;
+      event: string;
+      lotRef: string;
+      verifyHref: string;
+      verifyLabel: string;
+    };
   };
-  /** Datos de captura de la foto y de la escena satelital (forma de G1/G2, simulados). */
+  /** Ubicación declarada del lote con su geocerca (G2) y escena Sentinel-2 real (G1/G3). */
   capture: {
     photo: { takenAt: string; coords: string; accuracy: string; heading: string; geofence: string };
-    scene: { takenAt: string; platform: string; resolution: string; clouds: string; bbox: string };
+    scene: { id: string; takenAt: string; platform: string; resolution: string; clouds: string; bbox: string };
   };
   timeline: { title: string; range: string; progress: number; steps: VisorStep[] };
   photoCredit: string;
@@ -57,22 +66,50 @@ const fmtDate = (iso: string) => {
   return `${date.getUTCDate()} ${months[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
 };
 
-/** Códigos públicos simulados (el código opaco real llega con B2). */
-function displayCode(lot: Lot, index: number) {
-  return lot.parentId ? `SDO-9M4P${index > 1 ? `-${index}` : ""}` : `SDO-7K2Q${index > 0 ? `-${index}` : ""}`;
-}
+const shortId = (id: string) => id.slice(0, 8).toUpperCase();
+const shortHash = (value: string) => (value.length > 20 ? `${value.slice(0, 8)}…${value.slice(-8)}` : value);
+const geofenceText = { inside: "Dentro del área de estudio", outside: "Fuera del área de estudio", uncertain: "Ubicación incierta" } as const;
 
-export function buildVisorModel(store: Pick<LotStore, "list" | "events">): VisorModel {
-  const lots = store.list();
-  const root = lots.find(lot => !lot.parentId) ?? lots[0];
+type VisorSources = {
+  lots: Pick<LotStore, "list" | "events" | "evidence" | "anchors" | "publicationOf">;
+  geofence: GeofenceService;
+  blockchainMode: "fuji" | "simulado";
+  scene?: SatelliteObservation;
+};
+
+export function buildVisorModel({ lots: store, geofence, blockchainMode, scene }: VisorSources): VisorModel {
+  const lots = store.list(organizations.salinas.id);
+  const lastActivity = (lot: Lot) => Math.max(0, ...store.events(lot.id).map(event => Date.parse(event.recordedAt)));
+  const roots = lots.filter(lot => !lot.parentId);
+  const root = roots.reduce<Lot | undefined>((best, lot) => (!best || lastActivity(lot) > lastActivity(best) ? lot : best), undefined) ?? lots[0];
   const children = lots.filter(lot => lot.parentId === root.id);
   const events: LotEvent[] = store.events(root.id);
   const measurement = events.find(event => event.type === "measurement_recorded");
   const initialGrams = measurement?.type === "measurement_recorded" ? measurement.payload.grams : root.availableGrams;
   const split = events.find(event => event.type === "lot_split");
   const splitKg = split?.type === "lot_split" ? kg(split.payload.grams) : null;
-  const code = displayCode(root, 0);
-  const child = children[0] ? { code: displayCode(children[0], 1), kg: kg(children[0].availableGrams) } : null;
+  const publication = store.publicationOf(root.id, root.organizationId);
+  const code = publication?.code ?? `LOTE ${shortId(root.id)}`;
+  const child = children[0] ? { code: `LOTE ${shortId(children[0].id)}`, kg: kg(children[0].availableGrams) } : null;
+
+  const evidence = store.evidence(root.id);
+  const anchors = store.anchors(root.id);
+  const anchor = anchors.find(item => item.txHash) ?? anchors[0];
+  const file = evidence.find(item => item.id === anchor?.evidenceId) ?? evidence[0];
+  const simulated = blockchainMode === "simulado";
+  const anchoredLabel = simulated ? "Anclaje simulado" : "Anclado en Fuji";
+  const badge = anchor ? anchoredLabel : file ? "Evidencia sin anclar" : "Sin evidencia";
+  const area = geofence.classify(root.location);
+  const { latitude, longitude, accuracyM, recordedAt } = root.location;
+  const lotHex = root.id.replaceAll("-", "");
+
+  const steps: Array<VisorStep & { done: boolean }> = [
+    { label: "Extracción", at: 0, done: true },
+    { label: measurement ? `Pesaje ${kg(initialGrams)} kg` : "Pesaje pendiente", at: 22, done: !!measurement },
+    { label: file ? "Evidencia" : "Evidencia pendiente", at: 45, done: !!file },
+    { label: splitKg ? `Fracción ${splitKg} kg` : "Fraccionamiento", at: 68, done: !!splitKg },
+    { label: anchor ? anchoredLabel : "Anclaje pendiente", at: 86, done: !!anchor },
+  ];
 
   return {
     camera: { place: "Salinas Grandes · Piletas sector norte", label: "Cámara 02", time: "13:05 ART" },
@@ -82,14 +119,14 @@ export function buildVisorModel(store: Pick<LotStore, "list" | "events">): Visor
       { label: "Radiación UV", value: "Muy alta" },
       { label: "Altitud", value: "3.450 m" },
     ],
-    hotspots: buildHotspots({ code, events, root, initialKg: kg(initialGrams), childCode: child?.code, childKg: child?.kg }),
+    hotspots: buildHotspots({ code, badge, events, root, initialKg: kg(initialGrams), childCode: child?.code, childKg: child?.kg }),
     lot: {
       code,
       product: "Sal artesanal de cosecha en piletas",
       extractedAt: fmtDate(root.extractedAt),
       place: "Salinas Grandes, Jujuy",
-      location: `Dentro del área · ±${root.location.accuracyM ?? "?"} m`,
-      producer: "Cooperativa demo",
+      location: `${geofenceText[area.status]} · ±${accuracyM ?? "?"} m`,
+      producer: Object.values(organizations).find(org => org.id === root.organizationId)?.name ?? "Organización demo",
       initialKg: kg(initialGrams),
       availableKg: kg(root.availableGrams),
       child,
@@ -98,43 +135,39 @@ export function buildVisorModel(store: Pick<LotStore, "list" | "events">): Visor
         { label: "Humedad", bar: 18 },
         { label: "Insolubles", bar: 8 },
       ],
-      sha256: "4e1b9c…07d2a90c",
-      txHash: "0x8f3a…c21b",
-      confirmations: 2,
-      contract: {
-        name: "AnchorRegistry",
-        address: "0x7a3F…9c1E",
-        chain: "Avalanche Fuji · 43113",
-        block: "38.412.907",
-        event: "Anchored · tipo 1 (evidencia)",
-        lotRef: "0x0000…c92f",
+      integrity: {
+        badge,
+        anchored: !!anchor && !simulated,
+        sha256: file ? shortHash(file.sha256) : "Sin documento cargado",
+        txHash: anchor?.txHash ? `${shortHash(anchor.txHash)}${simulated ? " · simulada" : ""}` : "Sin transacción",
+        contractAddress: anchor?.contractAddress ? shortHash(anchor.contractAddress) : "—",
+        chain: `Avalanche Fuji · 43113${simulated ? " · modo simulado" : ""}`,
+        event: anchor ? `Anchored · tipo ${file?.mediaType === "application/pdf" ? 2 : 1}` : "—",
+        lotRef: `0x0000…${lotHex.slice(-4)}`,
+        verifyHref: publication ? `/lotes/${publication.code}` : "/productor",
+        verifyLabel: publication ? "Verificar un archivo" : "Registrar y publicar el lote",
       },
     },
     timeline: {
       title: `Recorrido del lote ${code}`,
       range: `${fmtDate(root.extractedAt)} → hoy`,
-      progress: 86,
-      steps: [
-        { label: "Extracción", at: 0 },
-        { label: `Pesaje ${kg(initialGrams)} kg`, at: 22 },
-        { label: "Evidencia", at: 45 },
-        { label: splitKg ? `Fracción ${splitKg} kg` : "Fraccionamiento", at: 68 },
-        { label: "Anclado en Fuji", at: 86 },
-      ],
+      progress: Math.max(...steps.filter(step => step.done).map(step => step.at)),
+      steps: steps.map(({ label, at }) => ({ label, at })),
     },
     capture: {
       photo: {
-        takenAt: "22 nov 2026 · 13:05 ART",
-        coords: "-23.6402, -66.0124",
-        accuracy: "±8 m",
-        heading: "rumbo 352° N",
-        geofence: "Dentro del área de estudio",
+        takenAt: fmtDate(recordedAt),
+        coords: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+        accuracy: accuracyM ? `±${accuracyM} m` : "sin precisión",
+        heading: `polígono ${area.polygonVersion}`,
+        geofence: geofenceText[area.status],
       },
       scene: {
-        takenAt: "23 feb 2025 · 14:30 UTC",
-        platform: "Sentinel-2A · L2A",
-        resolution: "10 m por píxel",
-        clouds: "0 %",
+        id: scene?.itemId ?? "Sin escena",
+        takenAt: scene ? `${fmtDate(scene.acquiredAt)} · ${scene.acquiredAt.slice(11, 16)} UTC` : "—",
+        platform: scene ? `${scene.collection === "sentinel-2-l2a" ? "Sentinel-2 · L2A" : "Sentinel-1 · GRD"}` : "—",
+        resolution: scene?.resolutionM ? `${scene.resolutionM} m por píxel` : "—",
+        clouds: scene?.cloudCoverPercent !== undefined ? `${scene.cloudCoverPercent} %` : "—",
         bbox: "23,54–23,76 S · 65,88–66,10 O",
       },
     },
@@ -162,9 +195,12 @@ const eventLabels: Partial<Record<LotEvent["type"], string>> = {
   extraction_declared: "Extracción declarada",
   measurement_recorded: "Pesaje",
   lot_split: "Fraccionamiento",
+  evidence_attached: "Evidencia adjunta",
+  anchor_confirmed: "Anclaje registrado",
+  lot_published: "Ficha publicada",
 };
 
-function buildHotspots(input: { code: string; events: LotEvent[]; root: Lot; initialKg: number; childCode?: string; childKg?: number }): VisorHotspot[] {
+function buildHotspots(input: { code: string; badge: string; events: LotEvent[]; root: Lot; initialKg: number; childCode?: string; childKg?: number }): VisorHotspot[] {
   const { code, events, root } = input;
   const history = events.map(event => {
     const label = eventLabels[event.type] ?? event.type;
@@ -176,7 +212,7 @@ function buildHotspots(input: { code: string; events: LotEvent[]; root: Lot; ini
     {
       id: "lote", label: `Lote ${code}`, dot: [590, 672], shapes: [mound],
       detail: {
-        kicker: "Lote de sal", title: code, subtitle: "Montículo de cosecha en piletas", badge: "Verificado en Fuji",
+        kicker: "Lote de sal", title: code, subtitle: "Montículo de cosecha en piletas", badge: input.badge,
         rows: [
           ["Disponible", `${kg(root.availableGrams)} kg de ${input.initialKg} kg`],
           ["Sublote", input.childCode ? `${input.childCode} · ${input.childKg} kg` : "Sin fraccionar"],
