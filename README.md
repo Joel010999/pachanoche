@@ -2,6 +2,8 @@
 
 **Del territorio al mercado. Origen verificable, valor compartido.**
 
+[Ver la presentación](https://www.canva.com/design/DAHbq2PUXN8/-xy94sksThkMNdZ8x82i-w/view)
+
 Plataforma B2B de trazabilidad productiva para documentar la extracción y el recorrido comercial de la sal de Jujuy. Nace en una hackathon y comienza con Salinas Grandes. El modelo admite otros productos regionales.
 
 La necesidad de organizar lotes, acreditar procedencia y entregar documentación a compradores se validará con cooperativas y distribuidores. Productores registran extracción, pesaje, ubicación y documentos. Verificadores revisan evidencias y compradores consultan la ficha pública por QR o el historial autorizado.
