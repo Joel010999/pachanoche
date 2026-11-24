@@ -22,13 +22,13 @@ test("el contenedor arma todo con fixtures y sin configuración", async () => {
   assert.equal(anchor.id, anchorId);
 });
 
-test("el geofence demo clasifica dentro, fuera e incierto con versión", () => {
+test("el contenedor usa el geofence real de Salinas Grandes", () => {
   const { geofence } = createContainer();
   assert.equal(geofence.classify({ latitude: -23.64, longitude: -66.01, recordedAt: at, accuracyM: 10 }).status, "inside");
   assert.equal(geofence.classify({ latitude: -24.19, longitude: -65.3, recordedAt: at, accuracyM: 10 }).status, "outside");
-  const uncertain = geofence.classify({ latitude: -23.64, longitude: -66.01, recordedAt: at });
+  const uncertain = geofence.classify({ latitude: -23.64, longitude: -66.01, recordedAt: at, accuracyM: 600 });
   assert.equal(uncertain.status, "uncertain");
-  assert.equal(uncertain.polygonVersion, "demo-bbox-2026-11");
+  assert.equal(uncertain.polygonVersion, "2026-11-salinas-grandes");
 });
 
 test("los overrides reemplazan sólo el puerto indicado", () => {

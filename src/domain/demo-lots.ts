@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import {
-  maxGrams, type AnchorSummary, type CreateLot, type EvidenceSummary, type Lot, type LotEvent, type Measurement, type PublicField, type SplitResult,
+  maxGrams, type AnchorSummary, type CreateLot, type DigestVerificationResult, type EvidenceSummary, type Lot, type LotEvent, type Measurement, type PublicField, type SplitResult,
 } from "../contracts/v1.ts";
 import type { Actor, AnchorRecord, AuditAction, AuditEntry, EvidenceInput, EvidenceRecord, Publication } from "../server/ports.ts";
 import { AppError } from "./errors.ts";
@@ -182,6 +182,19 @@ export class DemoLots {
         contractAddress,
         txHash,
       }));
+  }
+
+  anchoredDigest(sha256: string): DigestVerificationResult {
+    for (const anchor of this.anchorRecords.values()) {
+      const evidence = this.files.get(anchor.evidenceId);
+      if (evidence?.sha256 !== sha256 || !anchor.txHash) continue;
+      return {
+        exists: true, anchorId: anchor.id, lotId: anchor.lotId, evidenceId: evidence.id, sha256,
+        eventKind: evidence.mediaType === "application/pdf" ? 2 : 1,
+        txHash: anchor.txHash, contractAddress: anchor.contractAddress ?? "", timestamp: anchor.createdAt,
+      };
+    }
+    return { exists: false };
   }
 
   publish(actor: Actor, lotId: string, fields: PublicField[]): Publication {

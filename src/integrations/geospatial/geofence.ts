@@ -1,4 +1,5 @@
 import defaultPolygon from "../../../data/geo/salinas-grandes-polygon.json" with { type: "json" };
+import type { GeofenceService } from "../../server/ports.ts";
 
 export type GeofenceStatus = "inside" | "outside" | "uncertain";
 
@@ -183,3 +184,8 @@ export function checkGeofence(
     reason: `La coordenada declarada está a ${Math.round(distToBoundary)}m fuera de los límites de Salinas Grandes.`,
   };
 }
+
+/** Adaptador del puerto GeofenceService con el polígono versionado de Salinas Grandes. */
+export const salinasGeofence: GeofenceService = {
+  classify: ({ latitude, longitude, accuracyM }) => checkGeofence({ latitude, longitude, accuracyMeters: accuracyM }),
+};

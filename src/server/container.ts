@@ -2,7 +2,7 @@ import { join, resolve } from "node:path";
 import { DemoLots, type DemoSnapshot } from "../domain/demo-lots.ts";
 import { seed } from "../domain/seed.ts";
 import { FujiBlockchainAdapter } from "../integrations/blockchain/adapter.ts";
-import { demoGeofence } from "../integrations/geospatial/demo.ts";
+import { salinasGeofence } from "../integrations/geospatial/geofence.ts";
 import { copernicusSatellite } from "../integrations/geospatial/satellite.ts";
 import { FileEvidenceStore } from "../integrations/local-store/file-evidence.ts";
 import { readJsonFile, writeJsonFile } from "../integrations/local-store/json-file.ts";
@@ -28,12 +28,14 @@ function persistentLots(file: string) {
 
 export function createContainer(overrides: Partial<Container> & { dataDir?: string } = {}): Container {
   const files = overrides.dataDir ? dataFiles(overrides.dataDir) : undefined;
+  const blockchain = overrides.blockchain ?? new FujiBlockchainAdapter();
   return {
     lots: overrides.lots ?? (files ? persistentLots(files.state) : seededLots()),
     evidence: overrides.evidence ?? (files ? new FileEvidenceStore(files.evidence) : new MemoryEvidenceStore()),
-    geofence: overrides.geofence ?? demoGeofence,
-    blockchain: overrides.blockchain ?? new FujiBlockchainAdapter(),
+    geofence: overrides.geofence ?? salinasGeofence,
+    blockchain,
     satellite: overrides.satellite ?? copernicusSatellite,
+    blockchainMode: overrides.blockchainMode ?? (blockchain instanceof FujiBlockchainAdapter && blockchain.isLive ? "fuji" : "simulado"),
   };
 }
 

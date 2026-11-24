@@ -1,5 +1,5 @@
 import type {
-  AnchorSummary, BlockchainAdapter, CreateLot, EvidenceSummary, GeofenceResult, Lot, LotEvent, Measurement, PublicField, SatelliteSource, SplitResult,
+  AnchorSummary, BlockchainAdapter, CreateLot, DigestVerificationResult, EvidenceSummary, GeofenceResult, Lot, LotEvent, Measurement, PublicField, SatelliteSource, SplitResult,
 } from "../contracts/v1.ts";
 
 export type { BlockchainAdapter, SatelliteSource };
@@ -33,6 +33,7 @@ export interface LotStore {
   evidence(lotId: string, organizationId?: string): EvidenceSummary[];
   attachAnchor(actor: Actor, lotId: string, anchor: AnchorSummary): AnchorSummary;
   anchors(lotId: string, organizationId?: string): AnchorSummary[];
+  anchoredDigest(sha256: string): DigestVerificationResult;
   publish(actor: Actor, lotId: string, fields: PublicField[]): Publication;
   publication(code: string): Publication | undefined;
   idempotent(actor: Actor, scope: string, key: string, fingerprint: string, operation: () => unknown): unknown;
@@ -55,4 +56,5 @@ export type Container = {
   geofence: GeofenceService;
   blockchain: BlockchainAdapter;
   satellite: SatelliteSource;
+  blockchainMode: "fuji" | "simulado";
 };
